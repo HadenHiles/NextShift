@@ -70,7 +70,7 @@ class _HomeState extends State<Home> {
                 final freshSnapshot = await transaction.get(item.reference);
                 final fresh = Item.fromSnapshot(freshSnapshot);
 
-                await transaction.update(item.reference, {'votes': fresh.votes + 1});
+                transaction.update(item.reference, {'votes': fresh.votes + 1});
               },
             ),
           ),
