@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
+import 'package:nextshift/NewItem.dart';
 import 'widgets/ListItem.dart';
 import 'widgets/Heading.dart';
 import 'Login.dart';
@@ -63,21 +64,7 @@ class _HomeState extends State<Home> {
     );
   }
 
-  final _formKey = GlobalKey<FormState>();
-  // Create a text controller and use it to retrieve the current value of the TextField.
-  final nameFieldController = TextEditingController();
-  final descriptionFieldController = TextEditingController();
-
-  @override
-  void dispose() {
-    // Clean up the controller when the widget is disposed.
-    nameFieldController.dispose();
-    super.dispose();
-  }
-
   void _newItem() {
-    String category;
-
     if (user == null) {
       setState(() {
         needsAuthenticated = true;
@@ -86,100 +73,7 @@ class _HomeState extends State<Home> {
       Navigator.of(context).push(
         MaterialPageRoute<void>(
           builder: (BuildContext context) {
-            return Scaffold(
-              appBar: AppBar(title: Text('Submit your request')),
-              body: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                mainAxisSize: MainAxisSize.max,
-                children: [
-                  SizedBox(
-                    width: 400,
-                    child: Column(
-                      children: [
-                        FormBuilder(
-                          key: _formKey,
-                          initialValue: {
-                            'name': '',
-                            'accept_terms': false,
-                          },
-                          child: Column(
-                            children: <Widget>[
-                              TextFormField(
-                                validator: (value) {
-                                  if (value.isEmpty) {
-                                    return 'Please enter a title';
-                                  }
-                                  return null;
-                                },
-                                controller: nameFieldController,
-                                decoration: InputDecoration(labelText: "Title"),
-                              ),
-                              TextFormField(
-                                validator: (value) {
-                                  if (value.isEmpty) {
-                                    return 'Please enter a description';
-                                  }
-                                  return null;
-                                },
-                                controller: descriptionFieldController,
-                                minLines: 3,
-                                maxLines: 20,
-                                decoration: InputDecoration(labelText: "Description"),
-                              ),
-                              FormBuilderDropdown(
-                                attribute: "category",
-                                decoration: InputDecoration(labelText: "Category"),
-                                // initialValue: 'Other',
-                                hint: Text('Select Category'),
-                                validators: [
-                                  FormBuilderValidators.required(),
-                                ],
-                                items: ['Feature Request', 'Content Request', 'Bug Fix', 'Other']
-                                    .map((category) => DropdownMenuItem(
-                                          value: category,
-                                          child: Text("$category"),
-                                        ))
-                                    .toList(),
-                                onChanged: (value) {
-                                  category = value;
-                                },
-                              ),
-                            ],
-                          ),
-                        ),
-                        RaisedButton(
-                          child: Text("Add"),
-                          onPressed: () {
-                            if (user == null) {
-                              setState(() {
-                                needsAuthenticated = true;
-                              });
-                            }
-                            FirebaseFirestore.instance.collection('items').add({
-                              'name': nameFieldController.text.toString(),
-                              'votes': 1,
-                              'voters': [user.uid],
-                              'description': descriptionFieldController.text.toString(),
-                              'category': category,
-                              'created_by': user.uid ?? null,
-                            }).catchError((e) {
-                              setState(() {
-                                needsAuthenticated = true;
-                              });
-                            });
-
-                            nameFieldController.value = TextEditingValue(text: '');
-
-                            Navigator.of(context).pop();
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            );
+            return NewItem();
           },
         ),
       );
