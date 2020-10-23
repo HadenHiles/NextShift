@@ -2,9 +2,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
+import 'widgets/ListItem.dart';
 import 'widgets/Heading.dart';
 import 'Login.dart';
-import 'models/Item.dart';
 
 class Home extends StatefulWidget {
   Home({Key key}) : super(key: key);
@@ -46,7 +46,7 @@ class _HomeState extends State<Home> {
   // Build the list of items
   Widget _buildBody(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance.collection('item').orderBy('votes.length', descending: true).snapshots(),
+        stream: FirebaseFirestore.instance.collection('items').orderBy('votes', descending: true).snapshots(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) return LinearProgressIndicator();
 
@@ -58,56 +58,7 @@ class _HomeState extends State<Home> {
     return Expanded(
       child: ListView(
         padding: EdgeInsets.only(top: 20.0),
-        children: snapshot.map((data) => _buildListItem(context, data)).toList(),
-      ),
-    );
-  }
-
-  Widget _buildListItem(BuildContext context, DocumentSnapshot data) {
-    final item = Item.fromSnapshot(data);
-
-    return Padding(
-      key: ValueKey(item.name),
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-      child: Container(
-        decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey),
-          borderRadius: BorderRadius.circular(5.0),
-        ),
-        child: ListTile(
-          title: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(item.name),
-              Text(item.votes.toString()),
-            ],
-          ),
-          trailing: IconButton(
-            icon: Icon(
-              Icons.arrow_upward,
-              color: Colors.grey,
-            ),
-            onPressed: () async {
-              if (user == null) {
-                setState(() {
-                  needsAuthenticated = true;
-                });
-              } else {
-                await FirebaseFirestore.instance.runTransaction(
-                  (transaction) async {
-                    final freshSnapshot = await transaction.get(item.reference);
-                    final fresh = Item.fromSnapshot(freshSnapshot);
-                    fresh.votes.add(user.uid);
-
-                    transaction.update(item.reference, {
-                      'votes': fresh.votes,
-                    });
-                  },
-                );
-              }
-            },
-          ),
-        ),
+        children: snapshot.map((data) => ListItem(data: data)).toList(),
       ),
     );
   }
@@ -205,12 +156,13 @@ class _HomeState extends State<Home> {
                                 needsAuthenticated = true;
                               });
                             }
-                            FirebaseFirestore.instance.collection('item').add({
+                            FirebaseFirestore.instance.collection('items').add({
                               'name': nameFieldController.text.toString(),
-                              'votes': [],
+                              'votes': 1,
+                              'voters': [user.uid],
                               'description': descriptionFieldController.text.toString(),
                               'category': category,
-                              'user_id': user.uid ?? null,
+                              'created_by': user.uid ?? null,
                             }).catchError((e) {
                               setState(() {
                                 needsAuthenticated = true;

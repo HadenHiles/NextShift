@@ -13,6 +13,7 @@ class Heading extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      margin: EdgeInsets.only(top: 25),
       child: Text(
         text.toUpperCase(),
         textAlign: TextAlign.center,
