@@ -2,6 +2,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
+import 'widgets/Heading.dart';
+import 'Login.dart';
 import 'models/Item.dart';
 
 class Home extends StatefulWidget {
@@ -12,21 +14,39 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+  // Static variables
+  final user = FirebaseAuth.instance.currentUser;
+
+  // State variables
+  bool needsAuthenticated = false;
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: _buildBody(context),
-      floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.add),
-        onPressed: _newItem,
-      ),
-    );
+    if (needsAuthenticated) {
+      return Login();
+    } else {
+      return Scaffold(
+        body: Column(
+          children: [
+            Heading(
+              text: "Next Shift",
+              size: 40,
+            ),
+            _buildBody(context),
+          ],
+        ),
+        floatingActionButton: FloatingActionButton(
+          child: Icon(Icons.add),
+          onPressed: _newItem,
+        ),
+      );
+    }
   }
 
   // Build the list of items
   Widget _buildBody(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance.collection('item').snapshots(),
+        stream: FirebaseFirestore.instance.collection('item').orderBy('votes.length', descending: true).snapshots(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) return LinearProgressIndicator();
 
@@ -35,9 +55,11 @@ class _HomeState extends State<Home> {
   }
 
   Widget _buildList(BuildContext context, List<DocumentSnapshot> snapshot) {
-    return ListView(
-      padding: EdgeInsets.only(top: 20.0),
-      children: snapshot.map((data) => _buildListItem(context, data)).toList(),
+    return Expanded(
+      child: ListView(
+        padding: EdgeInsets.only(top: 20.0),
+        children: snapshot.map((data) => _buildListItem(context, data)).toList(),
+      ),
     );
   }
 
@@ -65,14 +87,25 @@ class _HomeState extends State<Home> {
               Icons.arrow_upward,
               color: Colors.grey,
             ),
-            onPressed: () => FirebaseFirestore.instance.runTransaction(
-              (transaction) async {
-                final freshSnapshot = await transaction.get(item.reference);
-                final fresh = Item.fromSnapshot(freshSnapshot);
+            onPressed: () async {
+              if (user == null) {
+                setState(() {
+                  needsAuthenticated = true;
+                });
+              } else {
+                await FirebaseFirestore.instance.runTransaction(
+                  (transaction) async {
+                    final freshSnapshot = await transaction.get(item.reference);
+                    final fresh = Item.fromSnapshot(freshSnapshot);
+                    fresh.votes.add(user.uid);
 
-                transaction.update(item.reference, {'votes': fresh.votes + 1});
-              },
-            ),
+                    transaction.update(item.reference, {
+                      'votes': fresh.votes,
+                    });
+                  },
+                );
+              }
+            },
           ),
         ),
       ),
@@ -92,97 +125,112 @@ class _HomeState extends State<Home> {
   }
 
   void _newItem() {
-    String category = null;
+    String category;
 
-    Navigator.of(context).push(
-      MaterialPageRoute<void>(
-        builder: (BuildContext context) {
-          return Scaffold(
-            appBar: AppBar(title: Text('Submit your request')),
-            body: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.end,
-              mainAxisSize: MainAxisSize.max,
-              children: [
-                SizedBox(
-                  width: 400,
-                  child: Column(
-                    children: [
-                      FormBuilder(
-                        key: _formKey,
-                        initialValue: {
-                          'name': '',
-                          'accept_terms': false,
-                        },
-                        child: Column(
-                          children: <Widget>[
-                            TextFormField(
-                              validator: (value) {
-                                if (value.isEmpty) {
-                                  return 'Please enter a title';
-                                }
-                                return null;
-                              },
-                              controller: nameFieldController,
-                              decoration: InputDecoration(labelText: "Title"),
-                            ),
-                            TextFormField(
-                              validator: (value) {
-                                if (value.isEmpty) {
-                                  return 'Please enter a description';
-                                }
-                                return null;
-                              },
-                              controller: descriptionFieldController,
-                              minLines: 3,
-                              maxLines: 20,
-                              decoration: InputDecoration(labelText: "Description"),
-                            ),
-                            FormBuilderDropdown(
-                              attribute: "category",
-                              decoration: InputDecoration(labelText: "Category"),
-                              // initialValue: 'Other',
-                              hint: Text('Select Category'),
-                              validators: [
-                                FormBuilderValidators.required(),
-                              ],
-                              items: ['Feature Request', 'Content Request', 'Bug Fix', 'Other']
-                                  .map((category) => DropdownMenuItem(
-                                        value: category,
-                                        child: Text("$category"),
-                                      ))
-                                  .toList(),
-                              onChanged: (value) {
-                                category = value;
-                              },
-                            ),
-                          ],
+    if (user == null) {
+      setState(() {
+        needsAuthenticated = true;
+      });
+    } else {
+      Navigator.of(context).push(
+        MaterialPageRoute<void>(
+          builder: (BuildContext context) {
+            return Scaffold(
+              appBar: AppBar(title: Text('Submit your request')),
+              body: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                mainAxisSize: MainAxisSize.max,
+                children: [
+                  SizedBox(
+                    width: 400,
+                    child: Column(
+                      children: [
+                        FormBuilder(
+                          key: _formKey,
+                          initialValue: {
+                            'name': '',
+                            'accept_terms': false,
+                          },
+                          child: Column(
+                            children: <Widget>[
+                              TextFormField(
+                                validator: (value) {
+                                  if (value.isEmpty) {
+                                    return 'Please enter a title';
+                                  }
+                                  return null;
+                                },
+                                controller: nameFieldController,
+                                decoration: InputDecoration(labelText: "Title"),
+                              ),
+                              TextFormField(
+                                validator: (value) {
+                                  if (value.isEmpty) {
+                                    return 'Please enter a description';
+                                  }
+                                  return null;
+                                },
+                                controller: descriptionFieldController,
+                                minLines: 3,
+                                maxLines: 20,
+                                decoration: InputDecoration(labelText: "Description"),
+                              ),
+                              FormBuilderDropdown(
+                                attribute: "category",
+                                decoration: InputDecoration(labelText: "Category"),
+                                // initialValue: 'Other',
+                                hint: Text('Select Category'),
+                                validators: [
+                                  FormBuilderValidators.required(),
+                                ],
+                                items: ['Feature Request', 'Content Request', 'Bug Fix', 'Other']
+                                    .map((category) => DropdownMenuItem(
+                                          value: category,
+                                          child: Text("$category"),
+                                        ))
+                                    .toList(),
+                                onChanged: (value) {
+                                  category = value;
+                                },
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                      RaisedButton(
-                        child: Text("Add"),
-                        onPressed: () {
-                          FirebaseFirestore.instance.collection('item').add({
-                            'name': nameFieldController.text.toString(),
-                            'votes': 0,
-                            'description': descriptionFieldController.text.toString(),
-                            'category': category,
-                            'user_id': FirebaseAuth.instance.currentUser.uid,
-                          });
+                        RaisedButton(
+                          child: Text("Add"),
+                          onPressed: () {
+                            if (user == null) {
+                              setState(() {
+                                needsAuthenticated = true;
+                              });
+                            }
+                            FirebaseFirestore.instance.collection('item').add({
+                              'name': nameFieldController.text.toString(),
+                              'votes': [],
+                              'description': descriptionFieldController.text.toString(),
+                              'category': category,
+                              'user_id': user.uid ?? null,
+                            }).catchError((e) {
+                              setState(() {
+                                needsAuthenticated = true;
+                              });
+                            });
 
-                          nameFieldController.value = TextEditingValue(text: '');
+                            nameFieldController.value = TextEditingValue(text: '');
 
-                          Navigator.of(context).pop();
-                        },
-                      ),
-                    ],
+                            Navigator.of(context).pop();
+                          },
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              ],
-            ),
-          );
-        },
-      ),
-    );
+                ],
+              ),
+            );
+          },
+        ),
+      );
+    }
   }
 }

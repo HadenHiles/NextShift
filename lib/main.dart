@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'Login.dart';
+import 'Home.dart';
 
 void main() {
   runApp(NextShift());
@@ -10,7 +10,7 @@ class NextShift extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: Login(),
+      home: Home(),
     );
   }
 }

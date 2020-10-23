@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Item {
   final String name;
-  final int votes;
+  final List<String> votes;
   final String description;
   final String category;
   final String userId;

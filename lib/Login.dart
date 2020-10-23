@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_signin_button/flutter_signin_button.dart';
+import 'widgets/Heading.dart';
 import 'Home.dart';
 import 'auth.dart';
 
@@ -45,11 +46,31 @@ class _LoginState extends State<Login> {
   Widget build(BuildContext context) {
     //If user is signed in
     if (signedIn) {
-      return Home();
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (BuildContext context) {
+            return Home();
+          },
+        ),
+      );
     }
 
     return Scaffold(
       key: _scaffoldKey,
+      appBar: AppBar(
+        leading: InkWell(
+          child: Icon(Icons.arrow_back),
+          onTap: () {
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(
+                builder: (context) {
+                  return Home();
+                },
+              ),
+            );
+          },
+        ),
+      ),
       body: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.max,
@@ -66,11 +87,9 @@ class _LoginState extends State<Login> {
                       bottom: 60,
                     ),
                     width: 460,
-                    child: Center(
-                      child: Text(
-                        'Next Shift',
-                        textAlign: TextAlign.center,
-                      ),
+                    child: Heading(
+                      text: "Sign in",
+                      size: 40,
                     ),
                   ),
                   SizedBox(
