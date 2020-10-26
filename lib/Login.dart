@@ -60,14 +60,8 @@ class _LoginState extends State<Login> {
       appBar: AppBar(
         leading: InkWell(
           child: Icon(Icons.arrow_back),
-          onTap: () {
-            Navigator.of(context).pushReplacement(
-              MaterialPageRoute(
-                builder: (context) {
-                  return Home();
-                },
-              ),
-            );
+          onTap: () async {
+            Navigator.of(context).pop();
           },
         ),
       ),

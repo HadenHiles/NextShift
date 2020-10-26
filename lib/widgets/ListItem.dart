@@ -22,69 +22,64 @@ class _ListItemState extends State<ListItem> {
     final item = Item.fromSnapshot(widget.data);
     final hasVoted = user != null ? item.voters.contains(user.uid) : false;
 
-    return Padding(
-      key: ValueKey(item.name),
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-      child: Container(
-        decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey),
-          borderRadius: BorderRadius.circular(5.0),
+    return Card(
+      margin: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+      color: Colors.white,
+      elevation: 3.0,
+      child: ListTile(
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(item.name),
+            Text(item.votes.toString()),
+          ],
         ),
-        child: ListTile(
-          title: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(item.name),
-              Text(item.votes.toString()),
-            ],
+        trailing: IconButton(
+          icon: Icon(
+            Icons.thumb_up,
+            color: hasVoted ? Theme.of(context).accentColor : Colors.grey,
           ),
-          trailing: IconButton(
-            icon: Icon(
-              Icons.arrow_upward,
-              color: hasVoted ? Colors.blue : Colors.grey,
-            ),
-            onPressed: hasVoted
-                ? () async {
+          onPressed: hasVoted
+              ? () async {
+                  await FirebaseFirestore.instance.runTransaction(
+                    (transaction) async {
+                      final freshSnapshot = await transaction.get(item.reference);
+                      final fresh = Item.fromSnapshot(freshSnapshot);
+
+                      if (fresh.voters.contains(user.uid)) {
+                        fresh.voters.remove(user.uid);
+                      }
+
+                      transaction.update(item.reference, {
+                        'votes': fresh.votes - 1,
+                        'voters': fresh.voters,
+                      });
+                    },
+                  );
+                }
+              : () async {
+                  if (user == null) {
+                    Navigator.of(context).push(MaterialPageRoute(builder: (context) {
+                      return Login();
+                    }));
+                  } else {
                     await FirebaseFirestore.instance.runTransaction(
                       (transaction) async {
                         final freshSnapshot = await transaction.get(item.reference);
                         final fresh = Item.fromSnapshot(freshSnapshot);
 
-                        if (fresh.voters.contains(user.uid)) {
-                          fresh.voters.remove(user.uid);
+                        if (!fresh.voters.contains(user.uid)) {
+                          fresh.voters.add(user.uid);
                         }
 
                         transaction.update(item.reference, {
-                          'votes': fresh.votes - 1,
+                          'votes': fresh.votes + 1,
                           'voters': fresh.voters,
                         });
                       },
                     );
                   }
-                : () async {
-                    if (user == null) {
-                      Navigator.of(context).push(MaterialPageRoute(builder: (context) {
-                        return Login();
-                      }));
-                    } else {
-                      await FirebaseFirestore.instance.runTransaction(
-                        (transaction) async {
-                          final freshSnapshot = await transaction.get(item.reference);
-                          final fresh = Item.fromSnapshot(freshSnapshot);
-
-                          if (!fresh.voters.contains(user.uid)) {
-                            fresh.voters.add(user.uid);
-                          }
-
-                          transaction.update(item.reference, {
-                            'votes': fresh.votes + 1,
-                            'voters': fresh.voters,
-                          });
-                        },
-                      );
-                    }
-                  },
-          ),
+                },
         ),
       ),
     );

@@ -10,6 +10,11 @@ class NextShift extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      theme: ThemeData(
+        primaryColor: Color.fromRGBO(26, 26, 26, 1),
+        accentColor: Color.fromRGBO(204, 51, 51, 1),
+        backgroundColor: Colors.white,
+      ),
       home: Home(),
     );
   }
