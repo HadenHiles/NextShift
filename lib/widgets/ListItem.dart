@@ -21,6 +21,18 @@ class _ListItemState extends State<ListItem> {
   Widget build(BuildContext context) {
     final item = Item.fromSnapshot(widget.data);
     final hasVoted = user != null ? item.voters.contains(user.uid) : false;
+    final votesTitle = item.votes > 1 ? "Votes" : "Vote";
+    Color categoryColor = Theme.of(context).primaryColor;
+
+    if (item.category == "Feature Request") {
+      categoryColor = Colors.blue;
+    } else if (item.category == "Content Request") {
+      categoryColor = Colors.green;
+    } else if (item.category == "Idea") {
+      categoryColor = Colors.orange;
+    } else if (item.category == "Bug") {
+      categoryColor = Theme.of(context).accentColor;
+    }
 
     return Card(
       margin: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
@@ -30,8 +42,49 @@ class _ListItemState extends State<ListItem> {
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(item.name),
-            Text(item.votes.toString()),
+            Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(item.name),
+                Divider(
+                  height: 5,
+                ),
+                FlatButton(
+                  color: categoryColor,
+                  padding: EdgeInsets.all(10),
+                  onPressed: null,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                  child: Text(
+                    item.category,
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 14,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            Column(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text(
+                  item.votes.toString(),
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text(
+                  votesTitle,
+                  style: TextStyle(
+                    color: Colors.black38,
+                    fontWeight: FontWeight.w500,
+                    fontSize: 12,
+                  ),
+                )
+              ],
+            ),
           ],
         ),
         trailing: IconButton(

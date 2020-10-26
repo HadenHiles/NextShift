@@ -90,6 +90,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
           labelStyle: TextStyle(
             fontWeight: FontWeight.w500,
             color: Colors.white,
+            fontSize: 18,
           ),
           labelBackgroundColor: Theme.of(context).accentColor,
         ),
@@ -104,13 +105,14 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
           labelStyle: TextStyle(
             fontWeight: FontWeight.w500,
             color: Colors.white,
+            fontSize: 18,
           ),
           labelBackgroundColor: Colors.orange,
         ),
         SpeedDialChild(
           child: Icon(Icons.movie, color: Colors.white),
-          backgroundColor: Colors.blue,
-          foregroundColor: Colors.blue,
+          backgroundColor: Colors.green,
+          foregroundColor: Colors.green,
           onTap: () {
             newRequest("Content Request");
           },
@@ -118,13 +120,14 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
           labelStyle: TextStyle(
             fontWeight: FontWeight.w500,
             color: Colors.white,
+            fontSize: 18,
           ),
-          labelBackgroundColor: Colors.blue,
+          labelBackgroundColor: Colors.green,
         ),
         SpeedDialChild(
           child: Icon(Icons.list_alt, color: Colors.white),
-          backgroundColor: Colors.green,
-          foregroundColor: Colors.green,
+          backgroundColor: Colors.blue,
+          foregroundColor: Colors.blue,
           onTap: () {
             newRequest("Feature Request");
           },
@@ -132,8 +135,9 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
           labelStyle: TextStyle(
             fontWeight: FontWeight.w500,
             color: Colors.white,
+            fontSize: 18,
           ),
-          labelBackgroundColor: Colors.green,
+          labelBackgroundColor: Colors.blue,
         ),
       ],
     );
