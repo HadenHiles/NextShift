@@ -38,101 +38,118 @@ class _ListItemState extends State<ListItem> {
       margin: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
       color: Colors.white,
       elevation: 3.0,
-      child: ListTile(
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(item.name),
-                Divider(
-                  height: 5,
-                ),
-                FlatButton(
-                  color: categoryColor,
-                  padding: EdgeInsets.all(10),
-                  onPressed: null,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                  child: Text(
-                    item.category,
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 0, vertical: 10),
+        child: ListTile(
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisSize: MainAxisSize.max,
+            children: [
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    item.name,
                     style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 14,
+                      color: Colors.black87,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
-                ),
-              ],
-            ),
-            Column(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Text(
-                  item.votes.toString(),
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
+                ],
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Container(
+                    margin: EdgeInsets.only(right: 25),
+                    child: FlatButton(
+                      color: categoryColor,
+                      padding: EdgeInsets.symmetric(horizontal: 25, vertical: -2),
+                      hoverColor: categoryColor,
+                      onPressed: () {},
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                      child: Text(
+                        item.category,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
                   ),
-                ),
-                Text(
-                  votesTitle,
-                  style: TextStyle(
-                    color: Colors.black38,
-                    fontWeight: FontWeight.w500,
-                    fontSize: 12,
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text(
+                        item.votes.toString(),
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        votesTitle,
+                        style: TextStyle(
+                          color: Colors.black38,
+                          fontWeight: FontWeight.w500,
+                          fontSize: 12,
+                        ),
+                      )
+                    ],
                   ),
-                )
-              ],
-            ),
-          ],
-        ),
-        trailing: IconButton(
-          icon: Icon(
-            Icons.thumb_up,
-            color: hasVoted ? Theme.of(context).accentColor : Colors.grey,
+                ],
+              ),
+            ],
           ),
-          onPressed: hasVoted
-              ? () async {
-                  await FirebaseFirestore.instance.runTransaction(
-                    (transaction) async {
-                      final freshSnapshot = await transaction.get(item.reference);
-                      final fresh = Item.fromSnapshot(freshSnapshot);
-
-                      if (fresh.voters.contains(user.uid)) {
-                        fresh.voters.remove(user.uid);
-                      }
-
-                      transaction.update(item.reference, {
-                        'votes': fresh.votes - 1,
-                        'voters': fresh.voters,
-                      });
-                    },
-                  );
-                }
-              : () async {
-                  if (user == null) {
-                    Navigator.of(context).push(MaterialPageRoute(builder: (context) {
-                      return Login();
-                    }));
-                  } else {
+          trailing: IconButton(
+            icon: Icon(
+              Icons.thumb_up,
+              color: hasVoted ? Theme.of(context).accentColor : Colors.grey,
+            ),
+            onPressed: hasVoted
+                ? () async {
                     await FirebaseFirestore.instance.runTransaction(
                       (transaction) async {
                         final freshSnapshot = await transaction.get(item.reference);
                         final fresh = Item.fromSnapshot(freshSnapshot);
 
-                        if (!fresh.voters.contains(user.uid)) {
-                          fresh.voters.add(user.uid);
+                        if (fresh.voters.contains(user.uid)) {
+                          fresh.voters.remove(user.uid);
                         }
 
                         transaction.update(item.reference, {
-                          'votes': fresh.votes + 1,
+                          'votes': fresh.votes - 1,
                           'voters': fresh.voters,
                         });
                       },
                     );
                   }
-                },
+                : () async {
+                    if (user == null) {
+                      Navigator.of(context).push(MaterialPageRoute(builder: (context) {
+                        return Login();
+                      }));
+                    } else {
+                      await FirebaseFirestore.instance.runTransaction(
+                        (transaction) async {
+                          final freshSnapshot = await transaction.get(item.reference);
+                          final fresh = Item.fromSnapshot(freshSnapshot);
+
+                          if (!fresh.voters.contains(user.uid)) {
+                            fresh.voters.add(user.uid);
+                          }
+
+                          transaction.update(item.reference, {
+                            'votes': fresh.votes + 1,
+                            'voters': fresh.voters,
+                          });
+                        },
+                      );
+                    }
+                  },
+          ),
         ),
       ),
     );

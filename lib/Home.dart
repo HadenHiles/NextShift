@@ -89,10 +89,10 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
           label: 'Report a bug',
           labelStyle: TextStyle(
             fontWeight: FontWeight.w500,
-            color: Colors.white,
+            color: Colors.black54,
             fontSize: 18,
           ),
-          labelBackgroundColor: Theme.of(context).accentColor,
+          labelBackgroundColor: Colors.white,
         ),
         SpeedDialChild(
           child: Icon(Icons.lightbulb, color: Colors.white),
@@ -104,10 +104,10 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
           label: 'I have an idea',
           labelStyle: TextStyle(
             fontWeight: FontWeight.w500,
-            color: Colors.white,
+            color: Colors.black54,
             fontSize: 18,
           ),
-          labelBackgroundColor: Colors.orange,
+          labelBackgroundColor: Colors.white,
         ),
         SpeedDialChild(
           child: Icon(Icons.movie, color: Colors.white),
@@ -119,10 +119,10 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
           label: 'I would like to learn more about..',
           labelStyle: TextStyle(
             fontWeight: FontWeight.w500,
-            color: Colors.white,
+            color: Colors.black54,
             fontSize: 18,
           ),
-          labelBackgroundColor: Colors.green,
+          labelBackgroundColor: Colors.white,
         ),
         SpeedDialChild(
           child: Icon(Icons.list_alt, color: Colors.white),
@@ -134,10 +134,10 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
           label: 'I would like to be able to..',
           labelStyle: TextStyle(
             fontWeight: FontWeight.w500,
-            color: Colors.white,
+            color: Colors.black54,
             fontSize: 18,
           ),
-          labelBackgroundColor: Colors.blue,
+          labelBackgroundColor: Colors.white,
         ),
       ],
     );
