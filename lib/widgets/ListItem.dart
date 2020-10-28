@@ -73,7 +73,7 @@ class _ListItemState extends State<ListItem> {
                     margin: EdgeInsets.only(right: 25),
                     child: FlatButton(
                       color: categoryColor,
-                      padding: EdgeInsets.symmetric(horizontal: 25, vertical: -2),
+                      padding: EdgeInsets.symmetric(horizontal: 15, vertical: -2),
                       hoverColor: categoryColor,
                       onPressed: () {},
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),

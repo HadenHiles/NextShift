@@ -24,13 +24,24 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
+      backgroundColor: Color.fromRGBO(240, 240, 240, 1),
+      body: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.max,
         children: [
-          Heading(
-            text: "Next Shift",
-            size: 40,
+          Container(
+            width: MediaQuery.of(context).size.width,
+            constraints: BoxConstraints(maxWidth: 700),
+            child: Column(
+              children: [
+                Heading(
+                  text: "Next Shift",
+                  size: 40,
+                ),
+                _buildBody(context),
+              ],
+            ),
           ),
-          _buildBody(context),
         ],
       ),
       floatingActionButton: _buildSpeedDial(),
