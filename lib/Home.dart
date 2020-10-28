@@ -25,6 +25,13 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Color.fromRGBO(240, 240, 240, 1),
+      appBar: AppBar(
+        centerTitle: true,
+        title: Heading(
+          text: "Next Shift",
+          size: 30,
+        ),
+      ),
       body: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         mainAxisSize: MainAxisSize.max,
@@ -34,10 +41,6 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
             constraints: BoxConstraints(maxWidth: 700),
             child: Column(
               children: [
-                Heading(
-                  text: "Next Shift",
-                  size: 40,
-                ),
                 _buildBody(context),
               ],
             ),

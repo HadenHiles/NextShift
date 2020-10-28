@@ -13,13 +13,12 @@ class Heading extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.only(top: 25),
       child: Text(
         text.toUpperCase(),
         textAlign: TextAlign.center,
         style: TextStyle(
           fontSize: size,
-          color: Color.fromRGBO(75, 75, 75, 1),
+          color: Color.fromRGBO(120, 120, 120, 1),
           fontFamily: 'Teko',
           fontWeight: FontWeight.bold,
         ),

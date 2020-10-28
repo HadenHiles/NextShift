@@ -59,7 +59,10 @@ class _LoginState extends State<Login> {
       key: _scaffoldKey,
       appBar: AppBar(
         leading: InkWell(
-          child: Icon(Icons.arrow_back),
+          child: Icon(
+            Icons.arrow_back,
+            color: Color.fromRGBO(120, 120, 120, 1),
+          ),
           onTap: () async {
             Navigator.of(context).pop();
           },
