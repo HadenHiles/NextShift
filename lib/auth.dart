@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
@@ -58,6 +59,10 @@ Future<bool> hasMembership() async {
     // then throw an exception.
     throw Exception('Failed to load membership');
   }
+}
+
+Future<bool> isAdmin() async {
+  return FirebaseFirestore.instance.collection('admins').where('uid', isEqualTo: FirebaseAuth.instance.currentUser.uid).get().then((value) => value != null);
 }
 
 Future<void> signOut() async {
