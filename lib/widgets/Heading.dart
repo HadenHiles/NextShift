@@ -18,7 +18,7 @@ class Heading extends StatelessWidget {
         textAlign: TextAlign.center,
         style: TextStyle(
           fontSize: size,
-          color: Color.fromRGBO(120, 120, 120, 1),
+          color: Color.fromRGBO(170, 170, 170, 1),
           fontFamily: 'Teko',
           fontWeight: FontWeight.bold,
         ),

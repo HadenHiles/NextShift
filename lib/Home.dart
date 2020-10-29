@@ -31,10 +31,30 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
       backgroundColor: Color.fromRGBO(240, 240, 240, 1),
       appBar: AppBar(
         centerTitle: true,
+        leading: Container(
+          padding: EdgeInsets.all(5),
+          child: Image(
+            height: 40,
+            image: AssetImage(
+              'assets/images/logos/hth_logo_red.png',
+            ),
+          ),
+        ),
         title: Heading(
           text: "Next Shift",
           size: 30,
         ),
+        actions: [
+          Container(
+            padding: EdgeInsets.all(10),
+            child: Image(
+              height: 30,
+              image: AssetImage(
+                'assets/images/logos/thepond_white_rgb.png',
+              ),
+            ),
+          ),
+        ],
       ),
       body: Row(
         mainAxisAlignment: MainAxisAlignment.center,
