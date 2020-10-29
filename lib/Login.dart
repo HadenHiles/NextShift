@@ -57,6 +57,7 @@ class _LoginState extends State<Login> {
 
     return Scaffold(
       key: _scaffoldKey,
+      backgroundColor: Color.fromRGBO(240, 240, 240, 1),
       appBar: AppBar(
         leading: InkWell(
           child: Icon(

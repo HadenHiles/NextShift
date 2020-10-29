@@ -23,6 +23,10 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+    return _buildMobile();
+  }
+
+  Widget _buildMobile() {
     return Scaffold(
       backgroundColor: Color.fromRGBO(240, 240, 240, 1),
       appBar: AppBar(
@@ -41,7 +45,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
             constraints: BoxConstraints(maxWidth: 700),
             child: Column(
               children: [
-                _buildBody(context),
+                _buildItems(context),
               ],
             ),
           ),
@@ -52,17 +56,17 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   }
 
   // Build the list of items
-  Widget _buildBody(BuildContext context) {
+  Widget _buildItems(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance.collection('items').orderBy('votes', descending: true).snapshots(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) return LinearProgressIndicator();
 
-          return _buildList(context, snapshot.data.docs);
+          return _buildItemList(context, snapshot.data.docs);
         });
   }
 
-  Widget _buildList(BuildContext context, List<DocumentSnapshot> snapshot) {
+  Widget _buildItemList(BuildContext context, List<DocumentSnapshot> snapshot) {
     return Expanded(
       child: ListView(
         padding: EdgeInsets.only(top: 20.0),

@@ -122,6 +122,7 @@ class _NewRequestState extends State<NewRequest> {
               'description': descriptionFieldController.text.toString(),
               'category': widget.category,
               'created_by': user.uid ?? null,
+              'up_next': false
             });
 
             Navigator.of(context).pop();
