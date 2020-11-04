@@ -61,17 +61,20 @@ class _ListItemState extends State<ListItem> {
                 children: [
                   Container(
                     margin: EdgeInsets.only(right: 25),
-                    child: FlatButton(
-                      color: item.type.color,
-                      padding: EdgeInsets.symmetric(horizontal: 15, vertical: -2),
-                      hoverColor: item.type.color,
-                      onPressed: () {},
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                      child: Text(
-                        item.type.name,
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 12,
+                    child: ClipOval(
+                      child: Container(
+                        color: item.type.color,
+                        child: IconButton(
+                          iconSize: 30,
+                          tooltip: item.type.descriptor,
+                          hoverColor: Colors.transparent,
+                          focusColor: Colors.transparent,
+                          onPressed: () {},
+                          icon: Icon(
+                            item.type.icon,
+                            color: Colors.white,
+                            size: 20,
+                          ),
                         ),
                       ),
                     ),
