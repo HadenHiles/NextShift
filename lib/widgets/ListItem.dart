@@ -3,13 +3,17 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:nextshift/RequestDetail.dart';
 import 'package:nextshift/models/Item.dart';
+import 'package:nextshift/models/RequestType.dart';
 
 import '../Login.dart';
 
 class ListItem extends StatefulWidget {
-  ListItem({Key key, this.data}) : super(key: key);
+  ListItem({Key key, this.item, this.filterBy, this.filterType, this.includeType}) : super(key: key);
 
-  final DocumentSnapshot data;
+  final Item item;
+  final Function filterBy;
+  final RequestType filterType;
+  final Function includeType;
 
   @override
   _ListItemState createState() => _ListItemState();
@@ -20,9 +24,8 @@ class _ListItemState extends State<ListItem> {
 
   @override
   Widget build(BuildContext context) {
-    final item = Item.fromSnapshot(widget.data);
-    final hasVoted = user != null ? item.voters.contains(user.uid) : false;
-    final votesTitle = item.votes > 1 ? "Votes" : "Vote";
+    final hasVoted = user != null ? widget.item.voters.contains(user.uid) : false;
+    final votesTitle = widget.item.votes > 1 ? "Votes" : "Vote";
 
     return Card(
       margin: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
@@ -43,7 +46,7 @@ class _ListItemState extends State<ListItem> {
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       Text(
-                        item.name,
+                        widget.item.name,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
@@ -63,15 +66,17 @@ class _ListItemState extends State<ListItem> {
                     margin: EdgeInsets.only(right: 25),
                     child: ClipOval(
                       child: Container(
-                        color: item.type.color,
+                        color: widget.item.type.color,
                         child: IconButton(
                           iconSize: 30,
-                          tooltip: item.type.descriptor,
+                          tooltip: widget.item.type.descriptor,
                           hoverColor: Colors.transparent,
                           focusColor: Colors.transparent,
-                          onPressed: () {},
+                          onPressed: () {
+                            widget.filterBy(widget.item.type);
+                          },
                           icon: Icon(
-                            item.type.icon,
+                            widget.item.type.icon,
                             color: Colors.white,
                             size: 20,
                           ),
@@ -84,7 +89,7 @@ class _ListItemState extends State<ListItem> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Text(
-                        item.votes.toString(),
+                        widget.item.votes.toString(),
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                         ),
@@ -112,14 +117,14 @@ class _ListItemState extends State<ListItem> {
                 ? () async {
                     await FirebaseFirestore.instance.runTransaction(
                       (transaction) async {
-                        final freshSnapshot = await transaction.get(item.reference);
+                        final freshSnapshot = await transaction.get(widget.item.reference);
                         final fresh = Item.fromSnapshot(freshSnapshot);
 
                         if (fresh.voters.contains(user.uid)) {
                           fresh.voters.remove(user.uid);
                         }
 
-                        transaction.update(item.reference, {
+                        transaction.update(widget.item.reference, {
                           'votes': fresh.votes - 1,
                           'voters': fresh.voters,
                         });
@@ -134,14 +139,14 @@ class _ListItemState extends State<ListItem> {
                     } else {
                       await FirebaseFirestore.instance.runTransaction(
                         (transaction) async {
-                          final freshSnapshot = await transaction.get(item.reference);
+                          final freshSnapshot = await transaction.get(widget.item.reference);
                           final fresh = Item.fromSnapshot(freshSnapshot);
 
                           if (!fresh.voters.contains(user.uid)) {
                             fresh.voters.add(user.uid);
                           }
 
-                          transaction.update(item.reference, {
+                          transaction.update(widget.item.reference, {
                             'votes': fresh.votes + 1,
                             'voters': fresh.voters,
                           });
@@ -152,7 +157,7 @@ class _ListItemState extends State<ListItem> {
           ),
           onTap: () {
             Navigator.of(context).push(MaterialPageRoute(builder: (context) {
-              return RequestDetail(item: item, reference: item.reference);
+              return RequestDetail(item: widget.item, reference: widget.item.reference);
             }));
           },
         ),

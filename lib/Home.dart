@@ -1,9 +1,12 @@
+import 'dart:js_util';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:nextshift/Request.dart';
 import 'package:nextshift/models/RequestType.dart';
+import 'models/Item.dart';
 import 'widgets/ListItem.dart';
 import 'widgets/Heading.dart';
 import 'Login.dart';
@@ -22,6 +25,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   // State variables
   bool speedDialOpen = false;
   bool initialized = false;
+  RequestType typeFilter;
 
   @override
   void initState() {
@@ -72,11 +76,54 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
         mainAxisSize: MainAxisSize.max,
         children: [
           Container(
+            margin: EdgeInsets.only(top: 10),
             width: MediaQuery.of(context).size.width,
             constraints: BoxConstraints(maxWidth: 700),
             child: Column(
               children: [
-                _buildItems(context),
+                typeFilter != null
+                    ? Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Text("${typeFilter.descriptor}"),
+                              Container(
+                                margin: EdgeInsets.only(left: 15),
+                                child: Icon(
+                                  Icons.filter_list,
+                                  color: Colors.black45,
+                                ),
+                              ),
+                            ],
+                          ),
+                          ClipOval(
+                            child: Container(
+                              color: Colors.transparent,
+                              child: IconButton(
+                                tooltip: "Remove filter",
+                                hoverColor: Colors.transparent,
+                                focusColor: Colors.transparent,
+                                onPressed: () {
+                                  setState(() {
+                                    typeFilter = null;
+                                  });
+                                },
+                                icon: Icon(
+                                  Icons.close,
+                                  color: typeFilter.color,
+                                  size: 15,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      )
+                    : Container(),
+                _buildItems(context)
               ],
             ),
           ),
@@ -98,10 +145,20 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   }
 
   Widget _buildItemList(BuildContext context, List<DocumentSnapshot> snapshot) {
+    List<ListItem> items = snapshot
+        .map((data) => ListItem(
+              item: Item.fromSnapshot(data),
+              filterBy: filterType,
+            ))
+        .toList();
+    if (typeFilter != null) {
+      items = items.where((element) => element.item.type.name == typeFilter.name).toList();
+    }
+
     return Expanded(
       child: ListView(
         padding: EdgeInsets.only(top: 20.0),
-        children: snapshot.map((data) => ListItem(data: data)).toList(),
+        children: items,
       ),
     );
   }
@@ -232,5 +289,15 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
         ),
       );
     }
+  }
+
+  void filterType(RequestType type) {
+    setState(() {
+      typeFilter = type;
+    });
+  }
+
+  bool includeType(RequestType type) {
+    return (type == null || type.name == typeFilter.name);
   }
 }
