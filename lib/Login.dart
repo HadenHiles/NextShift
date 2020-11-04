@@ -46,13 +46,15 @@ class _LoginState extends State<Login> {
   Widget build(BuildContext context) {
     //If user is signed in
     if (signedIn) {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (BuildContext context) {
-            return Home();
-          },
-        ),
-      );
+      Future.delayed(Duration.zero, () {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (BuildContext context) {
+              return Home();
+            },
+          ),
+        );
+      });
     }
 
     return Scaffold(

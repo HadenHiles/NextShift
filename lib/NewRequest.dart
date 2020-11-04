@@ -20,6 +20,9 @@ class _NewRequestState extends State<NewRequest> {
   final nameFieldController = TextEditingController();
   final descriptionFieldController = TextEditingController();
 
+  Icon requestIcon = Icon(Icons.info);
+  Color requestColor = Colors.black87;
+
   @override
   void initState() {
     if (user == null) {
@@ -31,15 +34,38 @@ class _NewRequestState extends State<NewRequest> {
         ),
       );
     }
+
+    if (widget.category == "Bug") {
+      requestIcon = Icon(Icons.bug_report);
+      requestColor = Theme.of(context).accentColor;
+    } else if (widget.category == "Idea") {
+      requestIcon = Icon(Icons.lightbulb);
+      requestColor = Colors.orange;
+    } else if (widget.category == "Content Request") {
+      requestIcon = Icon(Icons.movie);
+      requestColor = Colors.green;
+    } else if (widget.category == "Feature Request") {
+      requestIcon = Icon(Icons.list_alt);
+      requestColor = Colors.blue;
+    }
+
     super.initState();
   }
-
-  String category;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Submit your ${widget.category}")),
+      appBar: AppBar(
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text("${widget.category}"),
+            requestIcon,
+          ],
+        ),
+        backgroundColor: requestColor,
+      ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.end,

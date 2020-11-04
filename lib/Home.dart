@@ -20,6 +20,16 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
 
   // State variables
   bool speedDialOpen = false;
+  bool initialized = false;
+
+  @override
+  void initState() {
+    setState(() {
+      initialized = true;
+    });
+
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -71,7 +81,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
           ),
         ],
       ),
-      floatingActionButton: _buildSpeedDial(),
+      floatingActionButton: initialized ? _buildSpeedDial() : null,
     );
   }
 
@@ -183,20 +193,20 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
 
   void newRequest(String category) {
     if (user == null) {
-      Navigator.of(context).push(
-        MaterialPageRoute<void>(
-          builder: (BuildContext context) {
-            return Login();
-          },
-        ),
-      );
+      Future.delayed(Duration.zero, () {
+        Navigator.of(context).push(
+          MaterialPageRoute<void>(
+            builder: (BuildContext context) {
+              return Login();
+            },
+          ),
+        );
+      });
     } else {
       Navigator.of(context).push(
         MaterialPageRoute<void>(
           builder: (BuildContext context) {
-            return NewRequest(
-              category: category,
-            );
+            return NewRequest(category: category);
           },
         ),
       );
