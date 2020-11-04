@@ -1,11 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:nextshift/Request.dart';
+import 'package:nextshift/models/RequestType.dart';
 
 class Item {
   final String name;
   final int votes;
   final List<dynamic> voters;
   final String description;
-  final String type;
+  final RequestType type;
   final String createdBy;
   final bool upNext;
   final DocumentReference reference;
@@ -21,7 +23,7 @@ class Item {
         votes = map['votes'],
         voters = map['voters'],
         description = map['description'],
-        type = map['type'],
+        type = RequestType(name: map['type']),
         createdBy = map['created_by'],
         upNext = map['up_next'] != null ? map['up_next'] : false;
 

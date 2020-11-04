@@ -1,8 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:nextshift/RequestDetail.dart';
 import 'package:nextshift/models/Item.dart';
-import 'package:nextshift/models/RequestType.dart';
 
 import '../Login.dart';
 
@@ -23,7 +23,6 @@ class _ListItemState extends State<ListItem> {
     final item = Item.fromSnapshot(widget.data);
     final hasVoted = user != null ? item.voters.contains(user.uid) : false;
     final votesTitle = item.votes > 1 ? "Votes" : "Vote";
-    RequestType type = RequestType(name: item.type);
 
     return Card(
       margin: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
@@ -63,13 +62,13 @@ class _ListItemState extends State<ListItem> {
                   Container(
                     margin: EdgeInsets.only(right: 25),
                     child: FlatButton(
-                      color: type.color,
+                      color: item.type.color,
                       padding: EdgeInsets.symmetric(horizontal: 15, vertical: -2),
-                      hoverColor: type.color,
+                      hoverColor: item.type.color,
                       onPressed: () {},
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                       child: Text(
-                        item.type,
+                        item.type.name,
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 12,
@@ -148,6 +147,11 @@ class _ListItemState extends State<ListItem> {
                     }
                   },
           ),
+          onTap: () {
+            Navigator.of(context).push(MaterialPageRoute(builder: (context) {
+              return RequestDetail(item: item, reference: item.reference);
+            }));
+          },
         ),
       ),
     );

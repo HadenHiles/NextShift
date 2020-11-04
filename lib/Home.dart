@@ -2,7 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
-import 'package:nextshift/NewRequest.dart';
+import 'package:nextshift/Request.dart';
 import 'package:nextshift/models/RequestType.dart';
 import 'widgets/ListItem.dart';
 import 'widgets/Heading.dart';
@@ -227,7 +227,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
       Navigator.of(context).push(
         MaterialPageRoute<void>(
           builder: (BuildContext context) {
-            return NewRequest(type: requestType);
+            return Request(type: requestType);
           },
         ),
       );
