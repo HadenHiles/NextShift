@@ -2,11 +2,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'Login.dart';
+import 'models/RequestType.dart';
 
 class NewRequest extends StatefulWidget {
-  NewRequest({Key key, this.category}) : super(key: key);
+  NewRequest({Key key, this.type}) : super(key: key);
 
-  final String category;
+  final RequestType type;
 
   @override
   _NewRequestState createState() => _NewRequestState();
@@ -20,8 +21,13 @@ class _NewRequestState extends State<NewRequest> {
   final nameFieldController = TextEditingController();
   final descriptionFieldController = TextEditingController();
 
-  Icon requestIcon = Icon(Icons.info);
-  Color requestColor = Colors.black87;
+  RequestType requestType;
+  List<RequestType> types = [
+    RequestType(name: "Feature Request"),
+    RequestType(name: "Content Request"),
+    RequestType(name: "Idea"),
+    RequestType(name: "Bug"),
+  ];
 
   @override
   void initState() {
@@ -35,18 +41,10 @@ class _NewRequestState extends State<NewRequest> {
       );
     }
 
-    if (widget.category == "Bug") {
-      requestIcon = Icon(Icons.bug_report);
-      requestColor = Theme.of(context).accentColor;
-    } else if (widget.category == "Idea") {
-      requestIcon = Icon(Icons.lightbulb);
-      requestColor = Colors.orange;
-    } else if (widget.category == "Content Request") {
-      requestIcon = Icon(Icons.movie);
-      requestColor = Colors.green;
-    } else if (widget.category == "Feature Request") {
-      requestIcon = Icon(Icons.list_alt);
-      requestColor = Colors.blue;
+    if (requestType == null) {
+      setState(() {
+        requestType = widget.type;
+      });
     }
 
     super.initState();
@@ -56,15 +54,41 @@ class _NewRequestState extends State<NewRequest> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Text("${widget.category}"),
-            requestIcon,
-          ],
-        ),
-        backgroundColor: requestColor,
+        title: Text("${requestType.descriptor}"),
+        backgroundColor: requestType.color,
+        actions: [
+          PopupMenuButton(
+            elevation: 3.2,
+            initialValue: requestType,
+            tooltip: 'Change the type',
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+              child: Icon(requestType.icon),
+            ),
+            onSelected: (type) {
+              setState(() {
+                requestType = type;
+              });
+            },
+            itemBuilder: (BuildContext context) {
+              return types.map((RequestType choice) {
+                return PopupMenuItem(
+                  value: choice,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(choice.descriptor),
+                      Icon(
+                        choice.icon,
+                        color: choice.color,
+                      ),
+                    ],
+                  ),
+                );
+              }).toList();
+            },
+          )
+        ],
       ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.start,
@@ -77,7 +101,7 @@ class _NewRequestState extends State<NewRequest> {
               children: [
                 Form(
                   key: _formKey,
-                  autovalidateMode: AutovalidateMode.always,
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
                   child: Column(
                     children: <Widget>[
                       // Padding(
@@ -146,7 +170,7 @@ class _NewRequestState extends State<NewRequest> {
               'votes': 1,
               'voters': [user.uid],
               'description': descriptionFieldController.text.toString(),
-              'category': widget.category,
+              'type': requestType.name,
               'created_by': user.uid ?? null,
               'up_next': false
             });

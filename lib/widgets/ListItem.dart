@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:nextshift/models/Item.dart';
+import 'package:nextshift/models/RequestType.dart';
 
 import '../Login.dart';
 
@@ -22,17 +23,7 @@ class _ListItemState extends State<ListItem> {
     final item = Item.fromSnapshot(widget.data);
     final hasVoted = user != null ? item.voters.contains(user.uid) : false;
     final votesTitle = item.votes > 1 ? "Votes" : "Vote";
-    Color categoryColor = Theme.of(context).primaryColor;
-
-    if (item.category == "Feature Request") {
-      categoryColor = Colors.blue;
-    } else if (item.category == "Content Request") {
-      categoryColor = Colors.green;
-    } else if (item.category == "Idea") {
-      categoryColor = Colors.orange;
-    } else if (item.category == "Bug") {
-      categoryColor = Theme.of(context).accentColor;
-    }
+    RequestType type = RequestType(name: item.type);
 
     return Card(
       margin: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
@@ -72,13 +63,13 @@ class _ListItemState extends State<ListItem> {
                   Container(
                     margin: EdgeInsets.only(right: 25),
                     child: FlatButton(
-                      color: categoryColor,
+                      color: type.color,
                       padding: EdgeInsets.symmetric(horizontal: 15, vertical: -2),
-                      hoverColor: categoryColor,
+                      hoverColor: type.color,
                       onPressed: () {},
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                       child: Text(
-                        item.category,
+                        item.type,
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 12,

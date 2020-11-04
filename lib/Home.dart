@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:nextshift/NewRequest.dart';
+import 'package:nextshift/models/RequestType.dart';
 import 'widgets/ListItem.dart';
 import 'widgets/Heading.dart';
 import 'Login.dart';
@@ -191,7 +192,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
     );
   }
 
-  void newRequest(String category) {
+  void newRequest(String type) {
     if (user == null) {
       Future.delayed(Duration.zero, () {
         Navigator.of(context).push(
@@ -203,10 +204,30 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
         );
       });
     } else {
+      RequestType requestType = RequestType(name: type);
+
+      if (type == "Bug") {
+        requestType.color = Theme.of(context).accentColor;
+        requestType.descriptor = "Report a bug";
+        requestType.icon = Icons.bug_report;
+      } else if (type == "Idea") {
+        requestType.color = Colors.orange;
+        requestType.descriptor = "I have an idea";
+        requestType.icon = Icons.lightbulb;
+      } else if (type == "Content Request") {
+        requestType.color = Colors.green;
+        requestType.descriptor = "I would like to learn about..";
+        requestType.icon = Icons.movie;
+      } else if (type == "Feature Request") {
+        requestType.color = Colors.blue;
+        requestType.descriptor = "I would like to be able to..";
+        requestType.icon = Icons.list_alt;
+      }
+
       Navigator.of(context).push(
         MaterialPageRoute<void>(
           builder: (BuildContext context) {
-            return NewRequest(category: category);
+            return NewRequest(type: requestType);
           },
         ),
       );
