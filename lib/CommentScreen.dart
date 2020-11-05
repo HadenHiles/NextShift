@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:timeago/timeago.dart' as timeago;
 
 import 'models/Comment.dart';
 
@@ -120,6 +121,12 @@ class CommentItem extends StatelessWidget {
           title: Text(comment.comment),
           leading: CircleAvatar(
             backgroundImage: NetworkImage(comment.avatarUrl),
+          ),
+          trailing: Text(
+            timeago.format(
+              comment.timestamp.toDate(),
+              locale: 'en_short',
+            ),
           ),
         ),
         Divider(),
