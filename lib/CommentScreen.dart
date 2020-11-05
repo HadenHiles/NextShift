@@ -32,9 +32,7 @@ class _CommentScreenState extends State<CommentScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          Expanded(
-            child: buildComments(),
-          ),
+          buildComments(),
           Divider(),
           currentUser == null
               ? Container()
@@ -68,12 +66,19 @@ class _CommentScreenState extends State<CommentScreen> {
             if (!snapshot.hasData) return Container(alignment: FractionalOffset.center, child: CircularProgressIndicator());
 
             this.didFetchComments = true;
+            this.fetchedComments = snapshot.data.docs
+                .map((data) => CommentItem(
+                      comment: Comment.fromSnapshot(data),
+                    ))
+                .toList();
 
             return _buildCommentList(context, snapshot.data.docs);
           });
     } else {
       // for optimistic updating
-      return ListView(children: this.fetchedComments);
+      return Expanded(
+        child: ListView(children: this.fetchedComments),
+      );
     }
   }
 
@@ -84,8 +89,10 @@ class _CommentScreenState extends State<CommentScreen> {
             ))
         .toList();
 
-    return ListView(
-      children: comments,
+    return Expanded(
+      child: ListView(
+        children: comments,
+      ),
     );
   }
 
