@@ -32,12 +32,85 @@ class _ListItemState extends State<ListItem> {
       color: Colors.white,
       elevation: 3.0,
       child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 0, vertical: 10),
+        padding: EdgeInsets.only(top: 2, bottom: 2, right: 2, left: 0),
         child: ListTile(
           title: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisAlignment: MainAxisAlignment.start,
             mainAxisSize: MainAxisSize.max,
             children: [
+              Container(
+                margin: EdgeInsets.only(right: 20),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Transform.scale(
+                      scale: 0.7,
+                      child: IconButton(
+                        icon: Icon(
+                          Icons.thumb_up,
+                          color: hasVoted ? Theme.of(context).accentColor : Colors.grey,
+                        ),
+                        onPressed: hasVoted
+                            ? () async {
+                                await FirebaseFirestore.instance.runTransaction(
+                                  (transaction) async {
+                                    final freshSnapshot = await transaction.get(widget.item.reference);
+                                    final fresh = Item.fromSnapshot(freshSnapshot);
+
+                                    if (fresh.voters.contains(user.uid)) {
+                                      fresh.voters.remove(user.uid);
+                                    }
+
+                                    transaction.update(widget.item.reference, {
+                                      'votes': fresh.votes - 1,
+                                      'voters': fresh.voters,
+                                    });
+                                  },
+                                );
+                              }
+                            : () async {
+                                if (user == null) {
+                                  Navigator.of(context).push(MaterialPageRoute(builder: (context) {
+                                    return Login();
+                                  }));
+                                } else {
+                                  await FirebaseFirestore.instance.runTransaction(
+                                    (transaction) async {
+                                      final freshSnapshot = await transaction.get(widget.item.reference);
+                                      final fresh = Item.fromSnapshot(freshSnapshot);
+
+                                      if (!fresh.voters.contains(user.uid)) {
+                                        fresh.voters.add(user.uid);
+                                      }
+
+                                      transaction.update(widget.item.reference, {
+                                        'votes': fresh.votes + 1,
+                                        'voters': fresh.voters,
+                                      });
+                                    },
+                                  );
+                                }
+                              },
+                      ),
+                    ),
+                    Text(
+                      widget.item.votes.toString(),
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Text(
+                      votesTitle,
+                      style: TextStyle(
+                        color: Colors.black38,
+                        fontWeight: FontWeight.w500,
+                        fontSize: 12,
+                      ),
+                    )
+                  ],
+                ),
+              ),
               Flexible(
                 child: Container(
                   padding: new EdgeInsets.only(right: 10),
@@ -58,102 +131,28 @@ class _ListItemState extends State<ListItem> {
                   ),
                 ),
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Container(
-                    margin: EdgeInsets.only(right: 25),
-                    child: ClipOval(
-                      child: Container(
-                        color: widget.item.type.color,
-                        child: IconButton(
-                          iconSize: 30,
-                          tooltip: widget.item.type.descriptor,
-                          hoverColor: Colors.transparent,
-                          focusColor: Colors.transparent,
-                          onPressed: () {
-                            widget.filterBy(widget.item.type);
-                          },
-                          icon: Icon(
-                            widget.item.type.icon,
-                            color: Colors.white,
-                            size: 20,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Text(
-                        widget.item.votes.toString(),
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Text(
-                        votesTitle,
-                        style: TextStyle(
-                          color: Colors.black38,
-                          fontWeight: FontWeight.w500,
-                          fontSize: 12,
-                        ),
-                      )
-                    ],
-                  ),
-                ],
-              ),
             ],
           ),
-          trailing: IconButton(
-            icon: Icon(
-              Icons.thumb_up,
-              color: hasVoted ? Theme.of(context).accentColor : Colors.grey,
-            ),
-            onPressed: hasVoted
-                ? () async {
-                    await FirebaseFirestore.instance.runTransaction(
-                      (transaction) async {
-                        final freshSnapshot = await transaction.get(widget.item.reference);
-                        final fresh = Item.fromSnapshot(freshSnapshot);
-
-                        if (fresh.voters.contains(user.uid)) {
-                          fresh.voters.remove(user.uid);
-                        }
-
-                        transaction.update(widget.item.reference, {
-                          'votes': fresh.votes - 1,
-                          'voters': fresh.voters,
-                        });
-                      },
-                    );
-                  }
-                : () async {
-                    if (user == null) {
-                      Navigator.of(context).push(MaterialPageRoute(builder: (context) {
-                        return Login();
-                      }));
-                    } else {
-                      await FirebaseFirestore.instance.runTransaction(
-                        (transaction) async {
-                          final freshSnapshot = await transaction.get(widget.item.reference);
-                          final fresh = Item.fromSnapshot(freshSnapshot);
-
-                          if (!fresh.voters.contains(user.uid)) {
-                            fresh.voters.add(user.uid);
-                          }
-
-                          transaction.update(widget.item.reference, {
-                            'votes': fresh.votes + 1,
-                            'voters': fresh.voters,
-                          });
-                        },
-                      );
-                    }
+          trailing: Container(
+            child: ClipOval(
+              child: Container(
+                color: widget.item.type.color,
+                child: IconButton(
+                  iconSize: 30,
+                  tooltip: widget.item.type.descriptor,
+                  hoverColor: Colors.transparent,
+                  focusColor: Colors.transparent,
+                  onPressed: () {
+                    widget.filterBy(widget.item.type);
                   },
+                  icon: Icon(
+                    widget.item.type.icon,
+                    color: Colors.white,
+                    size: 20,
+                  ),
+                ),
+              ),
+            ),
           ),
           onTap: () {
             Navigator.of(context).push(MaterialPageRoute(builder: (context) {
