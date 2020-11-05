@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:nextshift/Request.dart';
 import 'package:nextshift/models/RequestType.dart';
 
 class Item {

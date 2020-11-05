@@ -1,7 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import "dart:async";
+
+import 'models/Comment.dart';
 
 class CommentScreen extends StatefulWidget {
   CommentScreen({this.requestId, this.requestOwner});
@@ -19,7 +20,7 @@ class _CommentScreenState extends State<CommentScreen> {
   final User currentUser = FirebaseAuth.instance.currentUser;
 
   bool didFetchComments = false;
-  List<Comment> fetchedComments = [];
+  List<CommentItem> fetchedComments = [];
 
   final TextEditingController _commentController = TextEditingController();
 
@@ -61,16 +62,14 @@ class _CommentScreenState extends State<CommentScreen> {
 
   Widget buildComments() {
     if (this.didFetchComments == false) {
-      return FutureBuilder<List<Comment>>(
-          future: getComments(),
+      return StreamBuilder<QuerySnapshot>(
+          stream: FirebaseFirestore.instance.collection('comments').doc(requestId).collection("comments").snapshots(),
           builder: (context, snapshot) {
             if (!snapshot.hasData) return Container(alignment: FractionalOffset.center, child: CircularProgressIndicator());
 
             this.didFetchComments = true;
-            this.fetchedComments = snapshot.data;
-            return ListView(
-              children: snapshot.data,
-            );
+
+            return _buildCommentList(context, snapshot.data.docs);
           });
     } else {
       // for optimistic updating
@@ -78,54 +77,42 @@ class _CommentScreenState extends State<CommentScreen> {
     }
   }
 
-  Future<List<Comment>> getComments() async {
-    List<Comment> comments = [];
+  Widget _buildCommentList(BuildContext context, List<DocumentSnapshot> snapshot) {
+    List<CommentItem> comments = snapshot
+        .map((data) => CommentItem(
+              comment: Comment.fromSnapshot(data),
+            ))
+        .toList();
 
-    QuerySnapshot data = await FirebaseFirestore.instance.collection("comments").doc(requestId).collection("comments").get();
-    data.docs.forEach((DocumentSnapshot doc) {
-      comments.add(Comment.fromDocument(doc));
-    });
-    return comments;
+    return ListView(
+      children: comments,
+    );
   }
 
   addComment(String comment) {
     _commentController.clear();
-    FirebaseFirestore.instance.collection("comments").doc(requestId).collection("comments").add({"display_name": currentUser.displayName, "comment": comment, "timestamp": Timestamp.now(), "avatarUrl": currentUser.photoURL, "userId": currentUser.uid});
+    FirebaseFirestore.instance.collection("comments").doc(requestId).collection("comments").add({"displayName": currentUser.displayName, "comment": comment, "timestamp": Timestamp.now(), "avatarUrl": currentUser.photoURL, "userId": currentUser.uid});
 
     // add comment to the current listview for an optimistic update
     setState(() {
-      fetchedComments = List.from(fetchedComments)..add(Comment(displayName: currentUser.displayName, comment: comment, timestamp: Timestamp.now(), avatarUrl: currentUser.photoURL, userId: currentUser.uid));
+      fetchedComments = List.from(fetchedComments)..add(CommentItem(comment: Comment(displayName: currentUser.displayName, comment: comment, timestamp: Timestamp.now(), avatarUrl: currentUser.photoURL, userId: currentUser.uid)));
     });
   }
 }
 
-class Comment extends StatelessWidget {
-  final String displayName;
-  final String userId;
-  final String avatarUrl;
-  final String comment;
-  final Timestamp timestamp;
+class CommentItem extends StatelessWidget {
+  const CommentItem({Key key, this.comment}) : super(key: key);
 
-  Comment({this.displayName, this.userId, this.avatarUrl, this.comment, this.timestamp});
-
-  factory Comment.fromDocument(DocumentSnapshot document) {
-    return Comment(
-      displayName: document['username'],
-      userId: document['userId'],
-      comment: document["comment"],
-      timestamp: document["timestamp"],
-      avatarUrl: document["avatarUrl"],
-    );
-  }
+  final Comment comment;
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: <Widget>[
         ListTile(
-          title: Text(comment),
+          title: Text(comment.comment),
           leading: CircleAvatar(
-            backgroundImage: NetworkImage(avatarUrl),
+            backgroundImage: NetworkImage(comment.avatarUrl),
           ),
         ),
         Divider(),
