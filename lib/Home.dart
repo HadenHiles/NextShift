@@ -151,6 +151,10 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
               filterBy: filterType,
             ))
         .toList();
+
+    // Put the items that are up next first
+    items = items.where((element) => element.item.upNext).toList() + items.where((e) => !e.item.upNext).toList();
+
     if (typeFilter != null) {
       items = items.where((element) => element.item.type.name == typeFilter.name).toList();
     }

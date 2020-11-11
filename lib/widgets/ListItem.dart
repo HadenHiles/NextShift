@@ -2,10 +2,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:nextshift/RequestDetail.dart';
+import 'package:nextshift/globals/Roles.dart';
 import 'package:nextshift/models/Item.dart';
 import 'package:nextshift/models/RequestType.dart';
-
 import '../Login.dart';
+
+final bool admin = Roles.admins.contains(FirebaseAuth.instance.currentUser?.uid);
 
 class ListItem extends StatefulWidget {
   ListItem({Key key, this.item, this.filterBy, this.filterType, this.includeType}) : super(key: key);
@@ -30,6 +32,7 @@ class _ListItemState extends State<ListItem> {
     return Card(
       margin: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
       color: Colors.white,
+      shadowColor: widget.item.upNext ? Theme.of(context).accentColor : Colors.black,
       elevation: 3.0,
       child: Padding(
         padding: EdgeInsets.only(top: 2, bottom: 2, right: 2, left: 0),
@@ -159,6 +162,16 @@ class _ListItemState extends State<ListItem> {
               return RequestDetail(item: widget.item, reference: widget.item.reference);
             }));
           },
+          onLongPress: !admin
+              ? () {}
+              : () => FirebaseFirestore.instance.runTransaction(
+                    (transaction) async {
+                      final freshSnapshot = await transaction.get(widget.item.reference);
+                      final fresh = Item.fromSnapshot(freshSnapshot);
+
+                      transaction.update(widget.item.reference, {'up_next': !fresh.upNext});
+                    },
+                  ),
         ),
       ),
     );

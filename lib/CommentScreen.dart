@@ -1,11 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:nextshift/globals/Authorization.dart';
+import 'package:nextshift/globals/Roles.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'models/Comment.dart';
 
-final bool admin = Authorization.admins.contains(FirebaseAuth.instance.currentUser?.uid);
+final bool admin = Roles.admins.contains(FirebaseAuth.instance.currentUser?.uid);
 
 class CommentScreen extends StatefulWidget {
   CommentScreen({this.requestId, this.requestOwner});
@@ -73,7 +73,7 @@ class _CommentScreenState extends State<CommentScreen> {
                                 borderSide: BorderSide.none,
                                 child: Icon(
                                   Icons.check,
-                                  color: Theme.of(context).accentColor,
+                                  color: Colors.green,
                                 ),
                               ),
                               OutlineButton(
@@ -83,7 +83,7 @@ class _CommentScreenState extends State<CommentScreen> {
                                 borderSide: BorderSide.none,
                                 child: Icon(
                                   Icons.delete,
-                                  color: Colors.black87,
+                                  color: Theme.of(context).accentColor,
                                 ),
                               ),
                             ],
