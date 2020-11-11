@@ -32,7 +32,17 @@ class _ListItemState extends State<ListItem> {
     return Card(
       margin: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
       color: Colors.white,
-      shadowColor: widget.item.upNext ? Theme.of(context).accentColor : Colors.black,
+      shape: widget.item.upNext
+          ? RoundedRectangleBorder(
+              side: BorderSide(
+                color: Theme.of(context).accentColor,
+                width: 1.5,
+              ),
+              borderRadius: BorderRadius.circular(5),
+            )
+          : RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(5),
+            ),
       elevation: 3.0,
       child: Padding(
         padding: EdgeInsets.only(top: 2, bottom: 2, right: 2, left: 0),
