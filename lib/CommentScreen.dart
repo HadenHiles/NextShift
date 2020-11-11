@@ -1,9 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:nextshift/globals/Authorization.dart';
 import 'package:timeago/timeago.dart' as timeago;
-
 import 'models/Comment.dart';
+
+final bool admin = Authorization.admins.contains(FirebaseAuth.instance.currentUser?.uid);
 
 class CommentScreen extends StatefulWidget {
   CommentScreen({this.requestId, this.requestOwner});
@@ -213,7 +215,10 @@ class CommentItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool isOwner = comment.userId == FirebaseAuth.instance.currentUser?.uid;
+    bool isOwner = comment.userId == FirebaseAuth.instance.currentUser?.uid;
+    if (!isOwner && admin) {
+      isOwner = admin;
+    }
 
     return Column(
       children: <Widget>[

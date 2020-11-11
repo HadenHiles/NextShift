@@ -62,7 +62,7 @@ Future<bool> hasMembership() async {
 }
 
 Future<bool> isAdmin() async {
-  return FirebaseFirestore.instance.collection('admins').where('uid', isEqualTo: FirebaseAuth.instance.currentUser.uid).get().then((value) => value != null);
+  return FirebaseFirestore.instance.collection('admins').doc(FirebaseAuth.instance.currentUser?.uid).get().then((value) => value != null);
 }
 
 Future<void> signOut() async {
