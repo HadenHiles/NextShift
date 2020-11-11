@@ -73,7 +73,7 @@ class _CommentScreenState extends State<CommentScreen> {
   Widget buildComments() {
     if (this.didFetchComments == false) {
       return StreamBuilder<QuerySnapshot>(
-          stream: FirebaseFirestore.instance.collection('comments').doc(requestId).collection("comments").snapshots(),
+          stream: FirebaseFirestore.instance.collection('comments').doc(requestId).collection("comments").orderBy('timestamp', descending: false).snapshots(),
           builder: (context, snapshot) {
             if (!snapshot.hasData) return Container(alignment: FractionalOffset.center, child: CircularProgressIndicator());
 
