@@ -173,7 +173,11 @@ class _ListItemState extends State<ListItem> {
             }));
           },
           onLongPress: !admin
-              ? () {}
+              ? () {
+                  Navigator.of(context).push(MaterialPageRoute(builder: (context) {
+                    return Login();
+                  }));
+                }
               : () => FirebaseFirestore.instance.runTransaction(
                     (transaction) async {
                       final freshSnapshot = await transaction.get(widget.item.reference);
