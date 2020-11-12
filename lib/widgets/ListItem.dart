@@ -7,8 +7,6 @@ import 'package:nextshift/models/Item.dart';
 import 'package:nextshift/models/RequestType.dart';
 import '../Login.dart';
 
-final bool admin = Roles.admins.contains(FirebaseAuth.instance.currentUser?.uid);
-
 class ListItem extends StatefulWidget {
   ListItem({Key key, this.item, this.filterBy, this.filterType, this.includeType}) : super(key: key);
 
@@ -28,7 +26,7 @@ class _ListItemState extends State<ListItem> {
 
   @override
   void initState() {
-    isAdmin = admin;
+    isAdmin = Roles.admins.contains(FirebaseAuth.instance.currentUser?.uid);
 
     super.initState();
   }
