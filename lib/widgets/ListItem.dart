@@ -169,13 +169,13 @@ class _ListItemState extends State<ListItem> {
           ),
           onTap: () {
             Navigator.of(context).push(MaterialPageRoute(builder: (context) {
-              return RequestDetail(item: widget.item, reference: widget.item.reference);
+              return RequestDetail(item: widget.item);
             }));
           },
           onLongPress: !admin
               ? () {
                   Navigator.of(context).push(MaterialPageRoute(builder: (context) {
-                    return RequestDetail(item: widget.item, reference: widget.item.reference);
+                    return RequestDetail(item: widget.item);
                   }));
                 }
               : () => FirebaseFirestore.instance.runTransaction(

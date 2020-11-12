@@ -1,13 +1,16 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:nextshift/RequestDetail.dart';
 import 'Login.dart';
+import 'models/Item.dart';
 import 'models/RequestType.dart';
 
 class Request extends StatefulWidget {
-  Request({Key key, this.type}) : super(key: key);
+  Request({Key key, this.type, this.editItem}) : super(key: key);
 
   final RequestType type;
+  final Item editItem;
 
   @override
   _RequestState createState() => _RequestState();
@@ -44,6 +47,15 @@ class _RequestState extends State<Request> {
     if (requestType == null) {
       setState(() {
         requestType = widget.type;
+      });
+    }
+
+    if (widget.editItem != null) {
+      nameFieldController.text = widget.editItem.name;
+      descriptionFieldController.text = widget.editItem.description;
+
+      setState(() {
+        requestType = widget.editItem.type;
       });
     }
 
@@ -167,21 +179,37 @@ class _RequestState extends State<Request> {
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.check),
         backgroundColor: Theme.of(context).accentColor,
-        onPressed: () {
-          if (_formKey.currentState.validate()) {
-            FirebaseFirestore.instance.collection('items').add({
-              'name': nameFieldController.text.toString(),
-              'votes': 1,
-              'voters': [user.uid],
-              'description': descriptionFieldController.text.toString(),
-              'type': requestType.name,
-              'created_by': user.uid ?? null,
-              'up_next': false
-            });
+        onPressed: widget.editItem == null
+            ? () {
+                if (_formKey.currentState.validate()) {
+                  FirebaseFirestore.instance.collection('items').add({
+                    'name': nameFieldController.text.toString().trim(),
+                    'votes': 1,
+                    'voters': [user.uid],
+                    'description': descriptionFieldController.text.toString().trim(),
+                    'type': requestType.name,
+                    'created_by': user.uid ?? null,
+                    'up_next': false
+                  });
 
-            Navigator.of(context).pop();
-          }
-        },
+                  Navigator.of(context).pop();
+                }
+              }
+            : () {
+                if (_formKey.currentState.validate()) {
+                  FirebaseFirestore.instance.runTransaction((transaction) async {
+                    transaction.update(widget.editItem.reference, {
+                      'name': nameFieldController.text.toString().trim(),
+                      'description': descriptionFieldController.text.toString().trim(),
+                      'type': requestType.name,
+                    });
+
+                    Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) {
+                      return RequestDetail(item: widget.editItem);
+                    }));
+                  });
+                }
+              },
       ),
     );
   }

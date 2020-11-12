@@ -2,15 +2,18 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:nextshift/CommentScreen.dart';
-
+import 'Home.dart';
 import 'Login.dart';
+import 'Request.dart';
+import 'globals/Roles.dart';
 import 'models/Item.dart';
 
+final bool admin = Roles.admins.contains(FirebaseAuth.instance.currentUser?.uid);
+
 class RequestDetail extends StatefulWidget {
-  RequestDetail({Key key, this.item, this.reference}) : super(key: key);
+  RequestDetail({Key key, this.item}) : super(key: key);
 
   final Item item;
-  final DocumentReference reference;
 
   @override
   _RequestDetailState createState() => _RequestDetailState();
@@ -20,18 +23,84 @@ class _RequestDetailState extends State<RequestDetail> {
   // Static variables
   final user = FirebaseAuth.instance.currentUser;
 
+  // State variables
+  Item item;
+  bool isOwner = false;
+  bool isAdmin = false;
+
+  @override
+  void initState() {
+    isAdmin = admin;
+    item = widget.item;
+
+    // Get a fresh version of the request (item)
+    freshItem(widget.item).then((freshItem) {
+      setState(() {
+        item = freshItem;
+      });
+    });
+
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
+    isOwner = user?.uid == item.createdBy;
+
     return Scaffold(
       appBar: AppBar(
-        title: Text("${widget.item.type.descriptor}"),
-        backgroundColor: widget.item.type.color,
-        actions: [
-          InkWell(
-            child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 10, vertical: 2),
-              child: Icon(widget.item.type.icon),
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text("${item.type.descriptor}"),
+            Container(
+              padding: EdgeInsets.only(left: 10, top: 4),
+              child: Icon(item.type.icon),
             ),
+          ],
+        ),
+        backgroundColor: item.type.color,
+        actions: [
+          Row(
+            children: [
+              isAdmin
+                  ? InkWell(
+                      child: Container(
+                        padding: EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+                        child: Icon(Icons.edit),
+                      ),
+                      onTap: () {
+                        Navigator.of(context).pushReplacement(
+                          MaterialPageRoute<void>(
+                            builder: (BuildContext context) {
+                              return Request(
+                                type: item.type,
+                                editItem: item,
+                              );
+                            },
+                          ),
+                        );
+                      },
+                    )
+                  : Container(),
+              isOwner || isAdmin
+                  ? InkWell(
+                      child: Container(
+                        padding: EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+                        child: Icon(Icons.delete),
+                      ),
+                      onTap: () {
+                        _confirmDialog("Are you sure you want to delete this request?", "This cannot be undone", () {
+                          Navigator.of(context).pop();
+                        }, () {
+                          Navigator.of(context).pop();
+                          deleteRequest(item);
+                        });
+                      },
+                    )
+                  : Container(),
+            ],
           ),
         ],
       ),
@@ -48,8 +117,8 @@ class _RequestDetailState extends State<RequestDetail> {
   }
 
   Widget _buildDetails() {
-    bool hasVoted = user != null ? widget.item.voters.contains(user.uid) : false;
-    String votesTitle = widget.item.votes > 1 ? "Votes" : "Vote";
+    bool hasVoted = user != null ? item.voters.contains(user.uid) : false;
+    String votesTitle = item.votes > 1 ? "Votes" : "Vote";
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -65,7 +134,7 @@ class _RequestDetailState extends State<RequestDetail> {
               Container(
                 padding: EdgeInsets.all(20),
                 child: StreamBuilder<DocumentSnapshot>(
-                    stream: FirebaseFirestore.instance.collection('items').doc(widget.reference.id).snapshots(),
+                    stream: FirebaseFirestore.instance.collection('items').doc(item.reference.id).snapshots(),
                     builder: (context, snapshot) {
                       if (!snapshot.hasData) return LinearProgressIndicator();
                       Item item = Item.fromSnapshot(snapshot.data);
@@ -97,14 +166,14 @@ class _RequestDetailState extends State<RequestDetail> {
                                           ? () async {
                                               await FirebaseFirestore.instance.runTransaction(
                                                 (transaction) async {
-                                                  final freshSnapshot = await transaction.get(widget.item.reference);
+                                                  final freshSnapshot = await transaction.get(item.reference);
                                                   final fresh = Item.fromSnapshot(freshSnapshot);
 
                                                   if (fresh.voters.contains(user.uid)) {
                                                     fresh.voters.remove(user.uid);
                                                   }
 
-                                                  transaction.update(widget.item.reference, {
+                                                  transaction.update(item.reference, {
                                                     'votes': fresh.votes - 1,
                                                     'voters': fresh.voters,
                                                   });
@@ -123,14 +192,14 @@ class _RequestDetailState extends State<RequestDetail> {
                                               } else {
                                                 await FirebaseFirestore.instance.runTransaction(
                                                   (transaction) async {
-                                                    final freshSnapshot = await transaction.get(widget.item.reference);
+                                                    final freshSnapshot = await transaction.get(item.reference);
                                                     final fresh = Item.fromSnapshot(freshSnapshot);
 
                                                     if (!fresh.voters.contains(user.uid)) {
                                                       fresh.voters.add(user.uid);
                                                     }
 
-                                                    transaction.update(widget.item.reference, {
+                                                    transaction.update(item.reference, {
                                                       'votes': fresh.votes + 1,
                                                       'voters': fresh.voters,
                                                     });
@@ -201,8 +270,60 @@ class _RequestDetailState extends State<RequestDetail> {
 
   Widget _buildComments() {
     return CommentScreen(
-      requestId: widget.item.reference.id,
-      requestOwner: widget.item.createdBy,
+      requestId: item.reference.id,
+      requestOwner: item.createdBy,
     );
+  }
+
+  Future<void> _confirmDialog(String title, String message, Function cancel, Function proceed) async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(title),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Text(message),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Cancel'),
+              onPressed: () {
+                cancel();
+              },
+            ),
+            TextButton(
+              child: Text('Continue'),
+              onPressed: () {
+                proceed();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<Item> freshItem(Item staleItem) async {
+    return FirebaseFirestore.instance.runTransaction((transaction) async {
+      var freshSnapshot = await transaction.get(staleItem.reference);
+      var fresh = Item.fromSnapshot(freshSnapshot);
+
+      return fresh;
+    });
+  }
+
+  Future<void> deleteRequest(Item item) {
+    return FirebaseFirestore.instance.runTransaction((transaction) async {
+      transaction.delete(item.reference);
+
+      Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) {
+        return Home();
+      }));
+    });
   }
 }

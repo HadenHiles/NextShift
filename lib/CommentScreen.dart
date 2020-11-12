@@ -190,7 +190,7 @@ class _CommentScreenState extends State<CommentScreen> {
     if (_formKey.currentState.validate()) {
       _commentController.clear();
       FirebaseFirestore.instance.runTransaction((transaction) async {
-        transaction.update(commentItem.comment.reference, {'comment': newComment});
+        transaction.update(commentItem.comment.reference, {'comment': newComment.trim()});
       });
 
       triggerEditComment(null);
