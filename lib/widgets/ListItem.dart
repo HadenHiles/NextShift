@@ -175,7 +175,7 @@ class _ListItemState extends State<ListItem> {
           onLongPress: !admin
               ? () {
                   Navigator.of(context).push(MaterialPageRoute(builder: (context) {
-                    return Login();
+                    return RequestDetail(item: widget.item, reference: widget.item.reference);
                   }));
                 }
               : () => FirebaseFirestore.instance.runTransaction(
