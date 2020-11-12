@@ -52,7 +52,12 @@ class _CommentScreenState extends State<CommentScreen> {
                       ? ListTile(
                           title: TextFormField(
                             controller: _commentController,
-                            decoration: InputDecoration(labelText: 'Update comment...'),
+                            keyboardType: TextInputType.multiline,
+                            minLines: 2,
+                            maxLines: 4,
+                            decoration: InputDecoration(
+                              labelText: 'Update comment...',
+                            ),
                             validator: (value) {
                               if (value.isEmpty) {
                                 return "Please write a comment";
@@ -92,7 +97,12 @@ class _CommentScreenState extends State<CommentScreen> {
                       : ListTile(
                           title: TextFormField(
                             controller: _commentController,
-                            decoration: InputDecoration(labelText: 'Write a comment...'),
+                            keyboardType: TextInputType.multiline,
+                            minLines: 2,
+                            maxLines: 4,
+                            decoration: InputDecoration(
+                              labelText: 'Write a comment...',
+                            ),
                             onFieldSubmitted: addComment,
                             validator: (value) {
                               if (value.isEmpty) {
