@@ -24,6 +24,15 @@ class ListItem extends StatefulWidget {
 class _ListItemState extends State<ListItem> {
   final user = FirebaseAuth.instance.currentUser;
 
+  bool isAdmin = false;
+
+  @override
+  void initState() {
+    isAdmin = admin;
+
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     final hasVoted = user != null ? widget.item.voters.contains(user.uid) : false;
@@ -172,7 +181,7 @@ class _ListItemState extends State<ListItem> {
               return RequestDetail(item: widget.item);
             }));
           },
-          onLongPress: !admin
+          onLongPress: !isAdmin
               ? () {
                   Navigator.of(context).push(MaterialPageRoute(builder: (context) {
                     return RequestDetail(item: widget.item);
