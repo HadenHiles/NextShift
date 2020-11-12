@@ -84,7 +84,7 @@ class _RequestDetailState extends State<RequestDetail> {
                       },
                     )
                   : Container(),
-              isOwner || isAdmin
+              (isOwner && !widget.item.upNext) || isAdmin
                   ? InkWell(
                       child: Container(
                         padding: EdgeInsets.symmetric(horizontal: 10, vertical: 2),
