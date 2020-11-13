@@ -102,79 +102,84 @@ class _RequestState extends State<Request> {
           )
         ],
       ),
-      body: Container(
-        width: MediaQuery.of(context).size.width,
-        constraints: BoxConstraints(maxWidth: 700),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.end,
-          mainAxisSize: MainAxisSize.max,
-          children: [
-            Container(
-              padding: EdgeInsets.all(20),
-              child: Column(
-                children: [
-                  Form(
-                    key: _formKey,
-                    autovalidateMode: AutovalidateMode.onUserInteraction,
-                    child: Column(
-                      children: <Widget>[
-                        // Padding(
-                        //   padding: EdgeInsets.only(bottom: 25),
-                        //   child: FormBuilderDropdown(
-                        //     initialValue: widget.category,
-                        //     readOnly: true,
-                        //     attribute: "category",
-                        //     // decoration: InputDecoration(labelText: "Category"),
-                        //     // initialValue: 'Other',
-                        //     hint: Text('Select Category'),
-                        //     validators: [
-                        //       FormBuilderValidators.required(),
-                        //     ],
-                        //     items: ['Feature Request', 'Content Request', 'Idea', 'Bug']
-                        //         .map((category) => DropdownMenuItem(
-                        //               value: category,
-                        //               child: Text("$category"),
-                        //             ))
-                        //         .toList(),
-                        //     onChanged: (value) {
-                        //       category = value;
-                        //     },
-                        //   ),
-                        // ),
-                        TextFormField(
-                          validator: (String value) {
-                            if (value.isEmpty) {
-                              return 'Please enter a title';
-                            }
-                            return null;
-                          },
-                          controller: nameFieldController,
-                          decoration: InputDecoration(labelText: "Title"),
+      body: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            width: MediaQuery.of(context).size.width,
+            constraints: BoxConstraints(maxWidth: 700),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              mainAxisSize: MainAxisSize.max,
+              children: [
+                Container(
+                  padding: EdgeInsets.all(20),
+                  child: Column(
+                    children: [
+                      Form(
+                        key: _formKey,
+                        autovalidateMode: AutovalidateMode.onUserInteraction,
+                        child: Column(
+                          children: <Widget>[
+                            // Padding(
+                            //   padding: EdgeInsets.only(bottom: 25),
+                            //   child: FormBuilderDropdown(
+                            //     initialValue: widget.category,
+                            //     readOnly: true,
+                            //     attribute: "category",
+                            //     // decoration: InputDecoration(labelText: "Category"),
+                            //     // initialValue: 'Other',
+                            //     hint: Text('Select Category'),
+                            //     validators: [
+                            //       FormBuilderValidators.required(),
+                            //     ],
+                            //     items: ['Feature Request', 'Content Request', 'Idea', 'Bug']
+                            //         .map((category) => DropdownMenuItem(
+                            //               value: category,
+                            //               child: Text("$category"),
+                            //             ))
+                            //         .toList(),
+                            //     onChanged: (value) {
+                            //       category = value;
+                            //     },
+                            //   ),
+                            // ),
+                            TextFormField(
+                              validator: (String value) {
+                                if (value.isEmpty) {
+                                  return 'Please enter a title';
+                                }
+                                return null;
+                              },
+                              controller: nameFieldController,
+                              decoration: InputDecoration(labelText: "Title"),
+                            ),
+                            Padding(
+                              padding: EdgeInsets.only(top: 25),
+                              child: TextFormField(
+                                validator: (String value) {
+                                  if (value.isEmpty) {
+                                    return 'Please enter a description';
+                                  }
+                                  return null;
+                                },
+                                controller: descriptionFieldController,
+                                minLines: 3,
+                                maxLines: 20,
+                                decoration: InputDecoration(labelText: "Description"),
+                              ),
+                            ),
+                          ],
                         ),
-                        Padding(
-                          padding: EdgeInsets.only(top: 25),
-                          child: TextFormField(
-                            validator: (String value) {
-                              if (value.isEmpty) {
-                                return 'Please enter a description';
-                              }
-                              return null;
-                            },
-                            controller: descriptionFieldController,
-                            minLines: 3,
-                            maxLines: 20,
-                            decoration: InputDecoration(labelText: "Description"),
-                          ),
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.check),

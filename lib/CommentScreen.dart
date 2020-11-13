@@ -39,91 +39,103 @@ class _CommentScreenState extends State<CommentScreen> {
     }
 
     return Expanded(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.end,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          buildComments(),
-          Divider(),
-          currentUser == null
-              ? Container()
-              : Form(
-                  key: _formKey,
-                  child: editComment != null
-                      ? ListTile(
-                          title: TextFormField(
-                            controller: _commentController,
-                            keyboardType: TextInputType.multiline,
-                            minLines: 2,
-                            maxLines: 4,
-                            decoration: InputDecoration(
-                              labelText: 'Update comment...',
-                            ),
-                            validator: (value) {
-                              if (value.isEmpty) {
-                                return "Please write a comment";
-                              }
+          Container(
+            width: MediaQuery.of(context).size.width,
+            constraints: BoxConstraints(maxWidth: 700),
+            padding: EdgeInsets.all(15),
+            child: Container(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  buildComments(),
+                  Divider(),
+                  currentUser == null
+                      ? Container()
+                      : Form(
+                          key: _formKey,
+                          child: editComment != null
+                              ? ListTile(
+                                  title: TextFormField(
+                                    controller: _commentController,
+                                    keyboardType: TextInputType.multiline,
+                                    minLines: 2,
+                                    maxLines: 4,
+                                    decoration: InputDecoration(
+                                      labelText: 'Update comment...',
+                                    ),
+                                    validator: (value) {
+                                      if (value.isEmpty) {
+                                        return "Please write a comment";
+                                      }
 
-                              return null;
-                            },
-                          ),
-                          trailing: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              OutlineButton(
-                                onPressed: () {
-                                  updateComment(editComment, _commentController.text);
-                                },
-                                borderSide: BorderSide.none,
-                                child: Icon(
-                                  Icons.check,
-                                  color: Colors.green,
-                                ),
-                              ),
-                              OutlineButton(
-                                onPressed: () {
-                                  deleteComment(editComment.comment);
-                                },
-                                borderSide: BorderSide.none,
-                                child: Icon(
-                                  Icons.delete,
-                                  color: Theme.of(context).accentColor,
-                                ),
-                              ),
-                            ],
-                          ),
-                        )
-                      : ListTile(
-                          title: TextFormField(
-                            controller: _commentController,
-                            keyboardType: TextInputType.multiline,
-                            minLines: 2,
-                            maxLines: 4,
-                            decoration: InputDecoration(
-                              labelText: 'Write a comment...',
-                            ),
-                            onFieldSubmitted: addComment,
-                            validator: (value) {
-                              if (value.isEmpty) {
-                                return "Please write a comment";
-                              }
+                                      return null;
+                                    },
+                                  ),
+                                  trailing: Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      OutlineButton(
+                                        onPressed: () {
+                                          updateComment(editComment, _commentController.text);
+                                        },
+                                        borderSide: BorderSide.none,
+                                        child: Icon(
+                                          Icons.check,
+                                          color: Colors.green,
+                                        ),
+                                      ),
+                                      OutlineButton(
+                                        onPressed: () {
+                                          deleteComment(editComment.comment);
+                                        },
+                                        borderSide: BorderSide.none,
+                                        child: Icon(
+                                          Icons.delete,
+                                          color: Theme.of(context).accentColor,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                )
+                              : ListTile(
+                                  title: TextFormField(
+                                    controller: _commentController,
+                                    keyboardType: TextInputType.multiline,
+                                    minLines: 2,
+                                    maxLines: 4,
+                                    decoration: InputDecoration(
+                                      labelText: 'Write a comment...',
+                                    ),
+                                    onFieldSubmitted: addComment,
+                                    validator: (value) {
+                                      if (value.isEmpty) {
+                                        return "Please write a comment";
+                                      }
 
-                              return null;
-                            },
-                          ),
-                          trailing: OutlineButton(
-                            onPressed: () {
-                              addComment(_commentController.text);
-                            },
-                            borderSide: BorderSide.none,
-                            child: Icon(
-                              Icons.send,
-                              color: Theme.of(context).accentColor,
-                            ),
-                          ),
+                                      return null;
+                                    },
+                                  ),
+                                  trailing: OutlineButton(
+                                    onPressed: () {
+                                      addComment(_commentController.text);
+                                    },
+                                    borderSide: BorderSide.none,
+                                    child: Icon(
+                                      Icons.send,
+                                      color: Theme.of(context).accentColor,
+                                    ),
+                                  ),
+                                ),
                         ),
-                ),
+                ],
+              ),
+            ),
+          ),
         ],
       ),
     );
