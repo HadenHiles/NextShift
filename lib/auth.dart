@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:http/http.dart' as http;
 import 'models/SubscriptionResponse.dart';
 
@@ -24,19 +23,6 @@ Future<UserCredential> signInWithGoogle() async {
   // Once signed in, return the UserCredential
   return await FirebaseAuth.instance.setPersistence(Persistence.SESSION).then((_) {
     return auth.signInWithCredential(credential);
-  });
-}
-
-Future<UserCredential> signInWithFacebook() async {
-  // Trigger the sign-in flow
-  final LoginResult result = await FacebookAuth.instance.login();
-
-  // Create a credential from the access token
-  final FacebookAuthCredential facebookAuthCredential = FacebookAuthProvider.credential(result.accessToken.token);
-
-  // Once signed in, return the UserCredential
-  return await FirebaseAuth.instance.setPersistence(Persistence.SESSION).then((_) {
-    return auth.signInWithCredential(facebookAuthCredential);
   });
 }
 

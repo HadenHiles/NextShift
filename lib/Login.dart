@@ -116,34 +116,6 @@ class _LoginState extends State<Login> {
                       },
                     ),
                   ),
-                  Divider(
-                    color: Colors.transparent,
-                    height: 10,
-                  ),
-                  SizedBox(
-                    height: 60,
-                    width: 360,
-                    child: SignInButton(
-                      Buttons.Facebook,
-                      onPressed: () {
-                        socialSignIn(context, 'facebook', (error) {
-                          _scaffoldKey.currentState.hideCurrentSnackBar();
-                          _scaffoldKey.currentState.showSnackBar(
-                            SnackBar(
-                              content: Text(error),
-                              duration: Duration(seconds: 10),
-                              action: SnackBarAction(
-                                label: "Dismiss",
-                                onPressed: () {
-                                  _scaffoldKey.currentState.hideCurrentSnackBar();
-                                },
-                              ),
-                            ),
-                          );
-                        });
-                      },
-                    ),
-                  ),
                 ],
               ),
             ),
@@ -169,22 +141,6 @@ class _LoginState extends State<Login> {
 
         print(e);
         await error(message);
-      });
-    } else if (provider == 'facebook') {
-      signInWithFacebook().then((credential) {
-        setState(() {
-          signedIn = true;
-        });
-      }).catchError((e) {
-        var message = "There was an error signing in with Facebook";
-        if (e.code == "user-disabled") {
-          message = "Your account has been disabled by the administrator";
-        } else if (e.code == "account-exists-with-different-credential") {
-          message = "An account already exists with the same email address but different sign-in credentials. Please try signing in a different way";
-        }
-
-        print(e);
-        error(message);
       });
     }
   }
