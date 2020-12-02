@@ -6,6 +6,7 @@ class Item {
   final int votes;
   final List<dynamic> voters;
   final String description;
+  final String platform;
   final RequestType type;
   final String createdBy;
   final bool upNext;
@@ -16,18 +17,17 @@ class Item {
         assert(map['votes'] != null),
         assert(map['voters'] != null),
         assert(map['description'] != null),
+        assert(map['platform'] != null),
         assert(map['type'] != null),
         assert(map['created_by'] != null),
         name = map['name'],
         votes = map['votes'],
         voters = map['voters'],
         description = map['description'],
+        platform = map['platform'],
         type = RequestType(name: map['type']),
         createdBy = map['created_by'],
         upNext = map['up_next'] != null ? map['up_next'] : false;
 
   Item.fromSnapshot(DocumentSnapshot snapshot) : this.fromMap(snapshot.data(), reference: snapshot.reference);
-
-  @override
-  String toString() => "Item<$name:$votes:$type>";
 }

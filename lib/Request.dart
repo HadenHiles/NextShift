@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dropdown_formfield/dropdown_formfield.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:nextshift/RequestDetail.dart';
@@ -25,11 +26,23 @@ class _RequestState extends State<Request> {
   final descriptionFieldController = TextEditingController();
 
   RequestType requestType;
+  String platform;
   List<RequestType> types = [
     RequestType(name: "Feature Request"),
     RequestType(name: "Content Request"),
     RequestType(name: "Idea"),
     RequestType(name: "Bug"),
+  ];
+
+  List<dynamic> platforms = [
+    {
+      "display": "The Pond",
+      "value": "thepond",
+    },
+    {
+      "display": "How To Hockey",
+      "value": "howtohockey",
+    },
   ];
 
   @override
@@ -50,12 +63,19 @@ class _RequestState extends State<Request> {
       });
     }
 
+    if (platform == null) {
+      setState(() {
+        platform = "thepond";
+      });
+    }
+
     if (widget.editItem != null) {
       nameFieldController.text = widget.editItem.name;
       descriptionFieldController.text = widget.editItem.description;
 
       setState(() {
         requestType = widget.editItem.type;
+        platform = widget.editItem.platform;
       });
     }
 
@@ -121,30 +141,7 @@ class _RequestState extends State<Request> {
                         key: _formKey,
                         autovalidateMode: AutovalidateMode.onUserInteraction,
                         child: Column(
-                          children: <Widget>[
-                            // Padding(
-                            //   padding: EdgeInsets.only(bottom: 25),
-                            //   child: FormBuilderDropdown(
-                            //     initialValue: widget.category,
-                            //     readOnly: true,
-                            //     attribute: "category",
-                            //     // decoration: InputDecoration(labelText: "Category"),
-                            //     // initialValue: 'Other',
-                            //     hint: Text('Select Category'),
-                            //     validators: [
-                            //       FormBuilderValidators.required(),
-                            //     ],
-                            //     items: ['Feature Request', 'Content Request', 'Idea', 'Bug']
-                            //         .map((category) => DropdownMenuItem(
-                            //               value: category,
-                            //               child: Text("$category"),
-                            //             ))
-                            //         .toList(),
-                            //     onChanged: (value) {
-                            //       category = value;
-                            //     },
-                            //   ),
-                            // ),
+                          children: [
                             TextFormField(
                               validator: (String value) {
                                 if (value.isEmpty) {
@@ -154,6 +151,27 @@ class _RequestState extends State<Request> {
                               },
                               controller: nameFieldController,
                               decoration: InputDecoration(labelText: "Title"),
+                            ),
+                            Padding(
+                              padding: EdgeInsets.only(bottom: 25),
+                              child: DropDownFormField(
+                                titleText: 'Platform',
+                                hintText: 'Please choose a platform',
+                                value: platform,
+                                onSaved: (value) {
+                                  setState(() {
+                                    platform = value;
+                                  });
+                                },
+                                onChanged: (value) {
+                                  setState(() {
+                                    platform = value;
+                                  });
+                                },
+                                dataSource: platforms.toList(),
+                                textField: 'display',
+                                valueField: 'value',
+                              ),
                             ),
                             Padding(
                               padding: EdgeInsets.only(top: 25),
@@ -192,6 +210,7 @@ class _RequestState extends State<Request> {
                     'votes': 1,
                     'voters': [user.uid],
                     'description': descriptionFieldController.text.toString().trim(),
+                    'platform': platform,
                     'type': requestType.name,
                     'created_by': user.uid ?? null,
                     'up_next': false
@@ -206,6 +225,7 @@ class _RequestState extends State<Request> {
                     transaction.update(widget.editItem.reference, {
                       'name': nameFieldController.text.toString().trim(),
                       'description': descriptionFieldController.text.toString().trim(),
+                      'platform': platform,
                       'type': requestType.name,
                     });
 
