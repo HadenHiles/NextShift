@@ -251,25 +251,36 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
               children: items,
             ),
           )
-        : Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Text("There are no items to display"),
-              (showCompleted || typeFilter != null || platformFilter != null)
-                  ? Container(
-                      margin: EdgeInsets.only(top: 15),
-                      child: FlatButton(
-                        onPressed: () => setState(() {
-                          showCompleted = false;
-                          typeFilter = null;
-                          platformFilter = null;
-                        }),
-                        child: Text("Clear Filters"),
-                      ),
-                    )
-                  : Container(),
-            ],
+        : Container(
+            constraints: BoxConstraints(
+              minHeight: MediaQuery.of(context).size.height - 100,
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text(
+                  "There are no items to display",
+                  style: TextStyle(
+                    fontSize: 16,
+                  ),
+                ),
+                (showCompleted || typeFilter != null || platformFilter != null)
+                    ? Container(
+                        margin: EdgeInsets.only(top: 15),
+                        child: FlatButton(
+                          padding: EdgeInsets.all(20),
+                          onPressed: () => setState(() {
+                            showCompleted = false;
+                            typeFilter = null;
+                            platformFilter = null;
+                          }),
+                          child: Text("Clear Filters"),
+                        ),
+                      )
+                    : Container(),
+              ],
+            ),
           );
   }
 
