@@ -244,12 +244,33 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
       items = items.where((element) => element.item.platform == platformFilter).toList();
     }
 
-    return Expanded(
-      child: ListView(
-        padding: EdgeInsets.only(top: 20.0),
-        children: items,
-      ),
-    );
+    return items.length > 0
+        ? Expanded(
+            child: ListView(
+              padding: EdgeInsets.only(top: 20.0),
+              children: items,
+            ),
+          )
+        : Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text("There are no items to display"),
+              (showCompleted || typeFilter != null || platformFilter != null)
+                  ? Container(
+                      margin: EdgeInsets.only(top: 15),
+                      child: FlatButton(
+                        onPressed: () => setState(() {
+                          showCompleted = false;
+                          typeFilter = null;
+                          platformFilter = null;
+                        }),
+                        child: Text("Clear Filters"),
+                      ),
+                    )
+                  : Container(),
+            ],
+          );
   }
 
   SpeedDial _buildSpeedDial() {
