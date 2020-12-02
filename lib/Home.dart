@@ -126,75 +126,103 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                                 )
                               : Container(),
                           typeFilter != null
-                              ? Row(
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  mainAxisSize: MainAxisSize.max,
-                                  children: [
-                                    Row(
-                                      mainAxisAlignment: MainAxisAlignment.end,
-                                      crossAxisAlignment: CrossAxisAlignment.center,
-                                      children: [
-                                        Text("${typeFilter.descriptor}"),
-                                      ],
-                                    ),
-                                    ClipOval(
-                                      child: Container(
-                                        color: Colors.transparent,
-                                        child: IconButton(
-                                          tooltip: "Remove filter",
-                                          hoverColor: Colors.transparent,
-                                          focusColor: Colors.transparent,
-                                          onPressed: () {
-                                            setState(() {
-                                              typeFilter = null;
-                                            });
-                                          },
-                                          icon: Icon(
-                                            Icons.close,
-                                            color: Theme.of(context).accentColor,
-                                            size: 15,
+                              ? Container(
+                                  margin: EdgeInsets.only(right: 10),
+                                  padding: EdgeInsets.only(left: 10),
+                                  height: 30,
+                                  decoration: BoxDecoration(
+                                    color: Colors.black12,
+                                    borderRadius: BorderRadius.all(Radius.circular(5)),
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    mainAxisSize: MainAxisSize.max,
+                                    children: [
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.end,
+                                        crossAxisAlignment: CrossAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            "${typeFilter.descriptor}",
+                                            style: TextStyle(
+                                              color: Colors.black54,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      ClipOval(
+                                        child: Container(
+                                          color: Colors.transparent,
+                                          child: IconButton(
+                                            tooltip: "Remove filter",
+                                            hoverColor: Colors.transparent,
+                                            focusColor: Colors.transparent,
+                                            onPressed: () {
+                                              setState(() {
+                                                typeFilter = null;
+                                              });
+                                            },
+                                            icon: Icon(
+                                              Icons.close,
+                                              color: Theme.of(context).accentColor,
+                                              size: 15,
+                                            ),
                                           ),
                                         ),
                                       ),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 )
                               : Container(),
                           platformFilter != null
-                              ? Row(
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  mainAxisSize: MainAxisSize.max,
-                                  children: [
-                                    Row(
-                                      mainAxisAlignment: MainAxisAlignment.end,
-                                      crossAxisAlignment: CrossAxisAlignment.center,
-                                      children: [
-                                        Text("$platformFilter"),
-                                      ],
-                                    ),
-                                    ClipOval(
-                                      child: Container(
-                                        color: Colors.transparent,
-                                        child: IconButton(
-                                          tooltip: "Remove filter",
-                                          hoverColor: Colors.transparent,
-                                          focusColor: Colors.transparent,
-                                          onPressed: () {
-                                            setState(() {
-                                              platformFilter = null;
-                                            });
-                                          },
-                                          icon: Icon(
-                                            Icons.close,
-                                            color: Theme.of(context).accentColor,
-                                            size: 15,
+                              ? Container(
+                                  margin: EdgeInsets.only(right: 10),
+                                  padding: EdgeInsets.only(left: 10),
+                                  height: 30,
+                                  decoration: BoxDecoration(
+                                    color: Colors.black12,
+                                    borderRadius: BorderRadius.all(Radius.circular(5)),
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    mainAxisSize: MainAxisSize.max,
+                                    children: [
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.end,
+                                        crossAxisAlignment: CrossAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            "$platformFilter",
+                                            style: TextStyle(
+                                              color: Colors.black54,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      ClipOval(
+                                        child: Container(
+                                          color: Colors.transparent,
+                                          child: IconButton(
+                                            tooltip: "Remove filter",
+                                            hoverColor: Colors.transparent,
+                                            focusColor: Colors.transparent,
+                                            onPressed: () {
+                                              setState(() {
+                                                platformFilter = null;
+                                              });
+                                            },
+                                            icon: Icon(
+                                              Icons.close,
+                                              color: Theme.of(context).accentColor,
+                                              size: 15,
+                                            ),
                                           ),
                                         ),
                                       ),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 )
                               : Container(),
                         ],
