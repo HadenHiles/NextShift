@@ -148,7 +148,7 @@ class _RequestDetailState extends State<RequestDetail> {
                         child: Container(
                           padding: EdgeInsets.all(15),
                           child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.center,
                             mainAxisAlignment: MainAxisAlignment.start,
                             children: [
                               Container(
@@ -229,7 +229,7 @@ class _RequestDetailState extends State<RequestDetail> {
                                   ],
                                 ),
                               ),
-                              Flexible(
+                              Expanded(
                                 child: Container(
                                   child: Column(
                                     mainAxisAlignment: MainAxisAlignment.start,
@@ -253,6 +253,54 @@ class _RequestDetailState extends State<RequestDetail> {
                                       ),
                                     ],
                                   ),
+                                ),
+                              ),
+                              Container(
+                                margin: EdgeInsets.only(left: 20),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                  children: [
+                                    widget.item.platform == "The Pond"
+                                        ? Transform.scale(
+                                            scale: 0.75,
+                                            child: Tooltip(
+                                              message: "The Pond",
+                                              child: ClipOval(
+                                                child: Container(
+                                                  padding: EdgeInsets.symmetric(
+                                                    vertical: 30,
+                                                  ),
+                                                  child: Image(
+                                                    height: 30,
+                                                    image: AssetImage(
+                                                      'assets/images/logos/thepond_rgb.png',
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          )
+                                        : Transform.scale(
+                                            scale: 0.75,
+                                            child: Tooltip(
+                                              message: "How To Hockey",
+                                              child: ClipOval(
+                                                child: Container(
+                                                  padding: EdgeInsets.symmetric(
+                                                    vertical: 30,
+                                                  ),
+                                                  child: Image(
+                                                    height: 35,
+                                                    image: AssetImage(
+                                                      'assets/images/logos/hth_logo.png',
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                  ],
                                 ),
                               ),
                             ],

@@ -26,6 +26,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   bool speedDialOpen = false;
   bool initialized = false;
   RequestType typeFilter;
+  String platformFilter;
 
   @override
   void initState() {
@@ -90,14 +91,15 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              Text("${typeFilter.descriptor}"),
                               Container(
-                                margin: EdgeInsets.only(left: 15),
+                                margin: EdgeInsets.only(right: 15),
                                 child: Icon(
                                   Icons.filter_list,
+                                  size: 14,
                                   color: Colors.black45,
                                 ),
                               ),
+                              Text("${typeFilter.descriptor}"),
                             ],
                           ),
                           ClipOval(
@@ -114,7 +116,50 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                                 },
                                 icon: Icon(
                                   Icons.close,
-                                  color: typeFilter.color,
+                                  color: Theme.of(context).accentColor,
+                                  size: 15,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      )
+                    : Container(),
+                platformFilter != null
+                    ? Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Container(
+                                margin: EdgeInsets.only(right: 15),
+                                child: Icon(
+                                  Icons.filter_list,
+                                  size: 14,
+                                  color: Colors.black45,
+                                ),
+                              ),
+                              Text("$platformFilter"),
+                            ],
+                          ),
+                          ClipOval(
+                            child: Container(
+                              color: Colors.transparent,
+                              child: IconButton(
+                                tooltip: "Remove filter",
+                                hoverColor: Colors.transparent,
+                                focusColor: Colors.transparent,
+                                onPressed: () {
+                                  setState(() {
+                                    platformFilter = null;
+                                  });
+                                },
+                                icon: Icon(
+                                  Icons.close,
+                                  color: Theme.of(context).accentColor,
                                   size: 15,
                                 ),
                               ),
@@ -148,7 +193,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
     List<ListItem> items = snapshot
         .map((data) => ListItem(
               item: Item.fromSnapshot(data),
-              filterBy: filterType,
+              filterBy: filterBy,
             ))
         .toList();
 
@@ -157,6 +202,10 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
 
     if (typeFilter != null) {
       items = items.where((element) => element.item.type.name == typeFilter.name).toList();
+    }
+
+    if (platformFilter != null) {
+      items = items.where((element) => element.item.platform == platformFilter).toList();
     }
 
     return Expanded(
@@ -295,9 +344,15 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
     }
   }
 
-  void filterType(RequestType type) {
+  void filterBy(RequestType type, String platform) {
     setState(() {
-      typeFilter = type;
+      if (type != null) {
+        typeFilter = type;
+      }
+
+      if (platform != null) {
+        platformFilter = platform;
+      }
     });
   }
 

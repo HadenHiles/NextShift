@@ -37,11 +37,11 @@ class _RequestState extends State<Request> {
   List<dynamic> platforms = [
     {
       "display": "The Pond",
-      "value": "thepond",
+      "value": "The Pond",
     },
     {
       "display": "How To Hockey",
-      "value": "howtohockey",
+      "value": "How To Hockey",
     },
   ];
 
@@ -65,7 +65,7 @@ class _RequestState extends State<Request> {
 
     if (platform == null) {
       setState(() {
-        platform = "thepond";
+        platform = "The Pond";
       });
     }
 

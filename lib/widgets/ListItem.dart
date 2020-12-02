@@ -126,12 +126,12 @@ class _ListItemState extends State<ListItem> {
                         ],
                       ),
                     ),
-                    Flexible(
+                    Expanded(
                       child: Container(
                         padding: new EdgeInsets.only(right: 10),
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.end,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
                               widget.item.name,
@@ -146,28 +146,85 @@ class _ListItemState extends State<ListItem> {
                         ),
                       ),
                     ),
+                    Container(
+                      margin: EdgeInsets.only(left: 20),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          widget.item.platform == "The Pond"
+                              ? Transform.scale(
+                                  scale: 0.75,
+                                  child: Tooltip(
+                                    message: "The Pond",
+                                    child: ClipOval(
+                                      child: FlatButton(
+                                        padding: EdgeInsets.symmetric(
+                                          vertical: 30,
+                                        ),
+                                        onPressed: () {
+                                          widget.filterBy(null, widget.item.platform);
+                                        },
+                                        child: Image(
+                                          height: 30,
+                                          image: AssetImage(
+                                            'assets/images/logos/thepond_rgb.png',
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                )
+                              : Transform.scale(
+                                  scale: 0.75,
+                                  child: Tooltip(
+                                    message: "How To Hockey",
+                                    child: ClipOval(
+                                      child: FlatButton(
+                                        padding: EdgeInsets.symmetric(
+                                          vertical: 30,
+                                        ),
+                                        onPressed: () {
+                                          widget.filterBy(null, widget.item.platform);
+                                        },
+                                        child: Image(
+                                          height: 35,
+                                          image: AssetImage(
+                                            'assets/images/logos/hth_logo.png',
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                        ],
+                      ),
+                    ),
                   ],
                 ),
-                trailing: Container(
-                  child: ClipOval(
-                    child: Container(
-                      color: widget.item.type.color,
-                      child: IconButton(
-                        iconSize: 30,
-                        tooltip: widget.item.type.descriptor,
-                        hoverColor: Colors.transparent,
-                        focusColor: Colors.transparent,
-                        onPressed: () {
-                          widget.filterBy(widget.item.type);
-                        },
-                        icon: Icon(
-                          widget.item.type.icon,
-                          color: Colors.white,
-                          size: 20,
+                trailing: Column(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    ClipOval(
+                      child: Container(
+                        color: widget.item.type.color,
+                        child: IconButton(
+                          iconSize: 30,
+                          tooltip: widget.item.type.descriptor,
+                          hoverColor: Colors.transparent,
+                          focusColor: Colors.transparent,
+                          onPressed: () {
+                            widget.filterBy(widget.item.type, null);
+                          },
+                          icon: Icon(
+                            widget.item.type.icon,
+                            color: Colors.white,
+                            size: 20,
+                          ),
                         ),
                       ),
                     ),
-                  ),
+                  ],
                 ),
                 onTap: () {
                   Navigator.of(context).push(MaterialPageRoute(builder: (context) {
