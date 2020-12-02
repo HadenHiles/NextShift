@@ -79,7 +79,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
         mainAxisSize: MainAxisSize.max,
         children: [
           Container(
-            margin: EdgeInsets.only(top: 10),
+            margin: EdgeInsets.only(top: 15),
             width: MediaQuery.of(context).size.width,
             constraints: BoxConstraints(maxWidth: 700),
             child: Column(
@@ -90,7 +90,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                   children: [
                     ClipOval(
                       child: Container(
-                        padding: const EdgeInsets.all(0.0),
+                        padding: EdgeInsets.all(0.0),
                         margin: EdgeInsets.symmetric(horizontal: 15),
                         color: Colors.transparent,
                         child: IconButton(
@@ -112,22 +112,23 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                       ),
                     ),
                     Expanded(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
+                      child: Wrap(
+                        direction: Axis.horizontal,
+                        alignment: WrapAlignment.end,
                         children: [
                           typeFilter != null || platformFilter != null
                               ? Container(
-                                  margin: EdgeInsets.symmetric(horizontal: 10),
+                                  margin: EdgeInsets.symmetric(vertical: 6, horizontal: 10),
                                   child: Icon(
                                     Icons.filter_list,
                                     size: 14,
                                     color: Colors.black45,
                                   ),
                                 )
-                              : Container(),
+                              : Column(),
                           typeFilter != null
                               ? Container(
-                                  margin: EdgeInsets.only(right: 10),
+                                  margin: EdgeInsets.only(right: 10, bottom: 5),
                                   padding: EdgeInsets.only(left: 10),
                                   height: 30,
                                   decoration: BoxDecoration(
@@ -137,7 +138,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.end,
                                     crossAxisAlignment: CrossAxisAlignment.center,
-                                    mainAxisSize: MainAxisSize.max,
+                                    mainAxisSize: MainAxisSize.min,
                                     children: [
                                       Row(
                                         mainAxisAlignment: MainAxisAlignment.end,
@@ -174,10 +175,10 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                                     ],
                                   ),
                                 )
-                              : Container(),
+                              : Column(),
                           platformFilter != null
                               ? Container(
-                                  margin: EdgeInsets.only(right: 10),
+                                  margin: EdgeInsets.only(right: 10, bottom: 5),
                                   padding: EdgeInsets.only(left: 10),
                                   height: 30,
                                   decoration: BoxDecoration(
@@ -187,7 +188,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.end,
                                     crossAxisAlignment: CrossAxisAlignment.center,
-                                    mainAxisSize: MainAxisSize.max,
+                                    mainAxisSize: MainAxisSize.min,
                                     children: [
                                       Row(
                                         mainAxisAlignment: MainAxisAlignment.end,
@@ -224,7 +225,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                                     ],
                                   ),
                                 )
-                              : Container(),
+                              : Column(),
                         ],
                       ),
                     ),
@@ -281,7 +282,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
           )
         : Container(
             constraints: BoxConstraints(
-              minHeight: MediaQuery.of(context).size.height - 120,
+              minHeight: MediaQuery.of(context).size.height - 160,
             ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,

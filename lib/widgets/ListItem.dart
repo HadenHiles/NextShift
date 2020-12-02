@@ -40,7 +40,12 @@ class _ListItemState extends State<ListItem> {
       children: [
         Container(
           child: Card(
-            margin: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+            margin: EdgeInsets.only(
+              top: 4.0,
+              right: 16.0,
+              bottom: 4.0,
+              left: 16.0,
+            ),
             color: Colors.white,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(5),
