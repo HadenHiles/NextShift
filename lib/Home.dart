@@ -90,11 +90,11 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                   children: [
                     ClipOval(
                       child: Container(
-                        height: 25,
-                        width: 30,
+                        padding: const EdgeInsets.all(0.0),
                         margin: EdgeInsets.symmetric(horizontal: 15),
                         color: Colors.transparent,
                         child: IconButton(
+                          alignment: Alignment.center,
                           tooltip: "View Completed",
                           hoverColor: Colors.transparent,
                           focusColor: Colors.transparent,
@@ -106,7 +106,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                           icon: Icon(
                             Icons.history,
                             color: showCompleted ? Colors.green : Colors.black54,
-                            size: 15,
+                            size: 24,
                           ),
                         ),
                       ),
@@ -253,7 +253,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
           )
         : Container(
             constraints: BoxConstraints(
-              minHeight: MediaQuery.of(context).size.height - 100,
+              minHeight: MediaQuery.of(context).size.height - 120,
             ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
