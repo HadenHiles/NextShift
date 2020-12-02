@@ -10,6 +10,7 @@ class Item {
   final RequestType type;
   final String createdBy;
   final bool upNext;
+  final bool complete;
   final DocumentReference reference;
 
   Item.fromMap(Map<String, dynamic> map, {this.reference})
@@ -20,6 +21,7 @@ class Item {
         assert(map['platform'] != null),
         assert(map['type'] != null),
         assert(map['created_by'] != null),
+        assert(map['complete'] != null),
         name = map['name'],
         votes = map['votes'],
         voters = map['voters'],
@@ -27,7 +29,8 @@ class Item {
         platform = map['platform'],
         type = RequestType(name: map['type']),
         createdBy = map['created_by'],
-        upNext = map['up_next'] != null ? map['up_next'] : false;
+        upNext = map['up_next'] != null ? map['up_next'] : false,
+        complete = map['complete'] != null ? map['complete'] : false;
 
   Item.fromSnapshot(DocumentSnapshot snapshot) : this.fromMap(snapshot.data(), reference: snapshot.reference);
 }

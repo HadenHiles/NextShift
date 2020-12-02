@@ -153,7 +153,7 @@ class _RequestState extends State<Request> {
                               decoration: InputDecoration(labelText: "Title"),
                             ),
                             Padding(
-                              padding: EdgeInsets.only(bottom: 25),
+                              padding: EdgeInsets.only(top: 25),
                               child: DropDownFormField(
                                 titleText: 'Platform',
                                 hintText: 'Please choose a platform',
@@ -213,7 +213,8 @@ class _RequestState extends State<Request> {
                     'platform': platform,
                     'type': requestType.name,
                     'created_by': user.uid ?? null,
-                    'up_next': false
+                    'up_next': false,
+                    'complete': false,
                   });
 
                   Navigator.of(context).pop();
