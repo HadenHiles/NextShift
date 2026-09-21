@@ -6,12 +6,10 @@ import 'package:nextshift/services/comment_policy.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'models/Comment.dart';
 
-final bool admin =
-    Roles.admins.contains(FirebaseAuth.instance.currentUser?.uid);
+final bool admin = Roles.admins.contains(FirebaseAuth.instance.currentUser?.uid);
 
 class CommentScreen extends StatefulWidget {
-  const CommentScreen(
-      {super.key, required this.requestId, required this.requestOwner});
+  const CommentScreen({super.key, required this.requestId, required this.requestOwner});
 
   final String requestId;
   final String requestOwner;
@@ -79,16 +77,13 @@ class _CommentScreenState extends State<CommentScreen> {
                                     enabled: !_isSaving,
                                     decoration: InputDecoration(
                                       labelText: 'Update comment...',
-                                      helperText:
-                                          'Plain text only. Links and embeds are not allowed.',
+                                      helperText: 'Plain text only. Links and embeds are not allowed.',
                                     ),
                                     validator: validateComment,
                                   ),
                                   trailing: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    crossAxisAlignment: CrossAxisAlignment.center,
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
                                       IconButton(
@@ -109,9 +104,7 @@ class _CommentScreenState extends State<CommentScreen> {
                                         },
                                         icon: Icon(
                                           Icons.delete,
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .secondary,
+                                          color: Theme.of(context).colorScheme.secondary,
                                         ),
                                       ),
                                     ],
@@ -127,22 +120,16 @@ class _CommentScreenState extends State<CommentScreen> {
                                     enabled: !_isSaving,
                                     decoration: InputDecoration(
                                       labelText: 'Write a comment...',
-                                      helperText:
-                                          'Plain text only. Links and embeds are not allowed.',
+                                      helperText: 'Plain text only. Links and embeds are not allowed.',
                                     ),
                                     onFieldSubmitted: addComment,
                                     validator: validateComment,
                                   ),
                                   trailing: IconButton(
-                                    onPressed: _isSaving
-                                        ? null
-                                        : () =>
-                                            addComment(_commentController.text),
+                                    onPressed: _isSaving ? null : () => addComment(_commentController.text),
                                     icon: Icon(
                                       Icons.send,
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .secondary,
+                                      color: Theme.of(context).colorScheme.secondary,
                                     ),
                                   ),
                                 ),
@@ -159,17 +146,9 @@ class _CommentScreenState extends State<CommentScreen> {
   Widget buildComments() {
     if (this.didFetchComments == false) {
       return StreamBuilder<QuerySnapshot>(
-          stream: FirebaseFirestore.instance
-              .collection('comments')
-              .doc(widget.requestId)
-              .collection("comments")
-              .orderBy('timestamp', descending: false)
-              .snapshots(),
+          stream: FirebaseFirestore.instance.collection('comments').doc(widget.requestId).collection("comments").orderBy('timestamp', descending: false).snapshots(),
           builder: (context, snapshot) {
-            if (!snapshot.hasData)
-              return Container(
-                  alignment: FractionalOffset.center,
-                  child: CircularProgressIndicator());
+            if (!snapshot.hasData) return Container(alignment: FractionalOffset.center, child: CircularProgressIndicator());
 
             this.didFetchComments = true;
             this.fetchedComments = snapshot.data!.docs
@@ -189,8 +168,7 @@ class _CommentScreenState extends State<CommentScreen> {
     }
   }
 
-  Widget _buildCommentList(
-      BuildContext context, List<DocumentSnapshot> snapshot) {
+  Widget _buildCommentList(BuildContext context, List<DocumentSnapshot> snapshot) {
     List<CommentItem> comments = snapshot
         .map((data) => CommentItem(
               comment: Comment.fromSnapshot(data),
@@ -211,20 +189,9 @@ class _CommentScreenState extends State<CommentScreen> {
       final cleanComment = comment.trim();
       setState(() => _isSaving = true);
       try {
-        await FirebaseFirestore.instance
-            .collection("comments")
-            .doc(widget.requestId)
-            .collection("comments")
-            .add({
-          "displayName": user.displayName ?? 'Anonymous',
-          "comment": cleanComment,
-          "timestamp": Timestamp.now(),
-          "avatarUrl": user.photoURL,
-          "userId": user.uid
-        });
+        await FirebaseFirestore.instance.collection("comments").doc(widget.requestId).collection("comments").add({"displayName": user.displayName ?? 'Anonymous', "comment": cleanComment, "timestamp": Timestamp.now(), "avatarUrl": user.photoURL, "userId": user.uid});
       } on FirebaseException {
-        if (mounted)
-          _showError('The comment could not be posted. Please try again.');
+        if (mounted) _showError('The comment could not be posted. Please try again.');
         return;
       } finally {
         if (mounted) setState(() => _isSaving = false);
@@ -237,12 +204,7 @@ class _CommentScreenState extends State<CommentScreen> {
         fetchedComments = List.from(fetchedComments)
           ..add(
             CommentItem(
-              comment: Comment(
-                  displayName: user.displayName ?? 'Anonymous',
-                  comment: cleanComment,
-                  timestamp: Timestamp.now(),
-                  avatarUrl: user.photoURL,
-                  userId: user.uid),
+              comment: Comment(displayName: user.displayName ?? 'Anonymous', comment: cleanComment, timestamp: Timestamp.now(), avatarUrl: user.photoURL, userId: user.uid),
               editCb: triggerEditComment,
             ),
           );
@@ -263,13 +225,11 @@ class _CommentScreenState extends State<CommentScreen> {
     if (_formKey.currentState?.validate() ?? false) {
       setState(() => _isSaving = true);
       try {
-        await commentItem.comment.reference!
-            .update({'comment': newComment.trim()});
+        await commentItem.comment.reference!.update({'comment': newComment.trim()});
         _commentController.clear();
         triggerEditComment(null);
       } on FirebaseException {
-        if (mounted)
-          _showError('The comment could not be updated. Please try again.');
+        if (mounted) _showError('The comment could not be updated. Please try again.');
       } finally {
         if (mounted) setState(() => _isSaving = false);
       }
@@ -310,9 +270,7 @@ class CommentItem extends StatelessWidget {
         ListTile(
           title: Text(comment.comment),
           leading: CircleAvatar(
-            backgroundImage: comment.avatarUrl == null
-                ? null
-                : NetworkImage(comment.avatarUrl!),
+            backgroundImage: comment.avatarUrl == null ? null : NetworkImage(comment.avatarUrl!),
           ),
           trailing: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,

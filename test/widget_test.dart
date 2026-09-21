@@ -13,8 +13,7 @@ import 'package:nextshift/widgets/PlatformBadge.dart';
 import 'package:nextshift/services/comment_policy.dart';
 
 void main() {
-  testWidgets('Heading renders uppercase text at the requested size',
-      (tester) async {
+  testWidgets('Heading renders uppercase text at the requested size', (tester) async {
     await tester.pumpWidget(
       const MaterialApp(
         home: Heading(text: 'Next Shift', size: 30),
@@ -39,8 +38,7 @@ void main() {
   });
 
   test('comment policy allows useful plain text', () {
-    expect(validateComment('Please add a video about backward crossovers.'),
-        isNull);
+    expect(validateComment('Please add a video about backward crossovers.'), isNull);
   });
 
   test('comment policy blocks links and embedded content', () {

@@ -138,21 +138,14 @@ class _LoginState extends State<Login> {
                               dimension: 18,
                               child: CircularProgressIndicator(strokeWidth: 2),
                             )
-                          : Icon(_passwordless
-                              ? Icons.mark_email_read_outlined
-                              : Icons.login),
+                          : Icon(_passwordless ? Icons.mark_email_read_outlined : Icons.login),
                       label: Text(_emailButtonLabel),
                     ),
                     if (!_passwordless)
                       TextButton(
-                        onPressed: _isLoading
-                            ? null
-                            : () => setState(
-                                () => _createAccount = !_createAccount),
+                        onPressed: _isLoading ? null : () => setState(() => _createAccount = !_createAccount),
                         child: Text(
-                          _createAccount
-                              ? 'Already have an account? Sign in'
-                              : 'New here? Create an account',
+                          _createAccount ? 'Already have an account? Sign in' : 'New here? Create an account',
                         ),
                       ),
                     const Padding(
@@ -169,16 +162,13 @@ class _LoginState extends State<Login> {
                       ),
                     ),
                     OutlinedButton.icon(
-                      onPressed:
-                          _isLoading ? null : () => _runAuth(signInWithGoogle),
+                      onPressed: _isLoading ? null : () => _runAuth(signInWithGoogle),
                       icon: const Icon(Icons.g_mobiledata, size: 28),
                       label: const Text('Continue with Google'),
                     ),
                     const SizedBox(height: 10),
                     OutlinedButton.icon(
-                      onPressed: _isLoading
-                          ? null
-                          : () => _runAuth(signInWithFacebook),
+                      onPressed: _isLoading ? null : () => _runAuth(signInWithFacebook),
                       icon: const Icon(Icons.facebook),
                       label: const Text('Continue with Facebook'),
                     ),
@@ -225,9 +215,7 @@ class _LoginState extends State<Login> {
     }
 
     await _runAuth(
-      () => _createAccount
-          ? createEmailPasswordAccount(email, _passwordController.text)
-          : signInWithEmailPassword(email, _passwordController.text),
+      () => _createAccount ? createEmailPasswordAccount(email, _passwordController.text) : signInWithEmailPassword(email, _passwordController.text),
     );
   }
 
@@ -242,8 +230,7 @@ class _LoginState extends State<Login> {
     } on FirebaseAuthException catch (error) {
       if (mounted) _showMessage(_authErrorMessage(error));
     } catch (_) {
-      if (mounted)
-        _showMessage('Sign in could not be completed. Please try again.');
+      if (mounted) _showMessage('Sign in could not be completed. Please try again.');
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -251,19 +238,13 @@ class _LoginState extends State<Login> {
 
   String _authErrorMessage(FirebaseAuthException error) {
     return switch (error.code) {
-      'invalid-credential' ||
-      'wrong-password' ||
-      'user-not-found' =>
-        'The email or password is incorrect.',
+      'invalid-credential' || 'wrong-password' || 'user-not-found' => 'The email or password is incorrect.',
       'email-already-in-use' => 'An account already uses that email address.',
       'weak-password' => 'Choose a stronger password.',
       'invalid-email' => 'Enter a valid email address.',
       'user-disabled' => 'This account has been disabled.',
-      'account-exists-with-different-credential' =>
-        'That email already uses another sign-in method.',
-      'popup-closed-by-user' ||
-      'cancelled-popup-request' =>
-        'Sign in was cancelled.',
+      'account-exists-with-different-credential' => 'That email already uses another sign-in method.',
+      'popup-closed-by-user' || 'cancelled-popup-request' => 'Sign in was cancelled.',
       'too-many-requests' => 'Too many attempts. Please wait and try again.',
       _ => 'Sign in could not be completed. Please try again.',
     };

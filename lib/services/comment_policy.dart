@@ -7,8 +7,7 @@ final RegExp _linkPattern = RegExp(
   caseSensitive: false,
 );
 final RegExp _markupPattern = RegExp(r'<[^>]*>|!?\[[^\]]*\]\s*\([^)]*\)');
-final RegExp _unsafeControlCharacters =
-    RegExp(r'[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]');
+final RegExp _unsafeControlCharacters = RegExp(r'[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]');
 
 String? validateComment(String? value) {
   final comment = value?.trim() ?? '';

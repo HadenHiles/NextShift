@@ -69,9 +69,7 @@ class NextShift extends StatelessWidget {
           border: OutlineInputBorder(),
         ),
       ),
-      home: kIsWeb && isPasswordlessSignInLink(Uri.base.toString())
-          ? const Login()
-          : Home(),
+      home: kIsWeb && isPasswordlessSignInLink(Uri.base.toString()) ? const Login() : Home(),
     );
   }
 }

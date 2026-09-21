@@ -67,9 +67,6 @@ Future<void> sendPasswordlessSignInLink(String email) {
       url: 'https://nextshift.howtohockey.com',
       handleCodeInApp: true,
       linkDomain: 'nextshift.howtohockey.com',
-      androidPackageName: 'com.example.nextshift',
-      androidInstallApp: true,
-      iOSBundleId: 'com.example.nextshift',
     ),
   );
 }
