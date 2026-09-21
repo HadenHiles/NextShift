@@ -111,15 +111,21 @@ class _RequestState extends State<Request> {
                   const SizedBox(height: 6),
                   const Text('Choose the description that fits best. You can change it later.'),
                   const SizedBox(height: 14),
-                  ...types.map(
-                    (type) => RadioListTile<String>(
-                      value: type.name,
-                      groupValue: requestType.name,
-                      onChanged: (value) => setState(() => requestType = RequestType(name: value!)),
-                      title: Text(type.userLabel),
-                      subtitle: Text(type.helpText),
-                      secondary: Icon(type.icon, color: type.color),
-                      contentPadding: EdgeInsets.zero,
+                  RadioGroup<String>(
+                    groupValue: requestType.name,
+                    onChanged: (value) => setState(() => requestType = RequestType(name: value!)),
+                    child: Column(
+                      children: types
+                          .map(
+                            (type) => RadioListTile<String>(
+                              value: type.name,
+                              title: Text(type.userLabel),
+                              subtitle: Text(type.helpText),
+                              secondary: Icon(type.icon, color: type.color),
+                              contentPadding: EdgeInsets.zero,
+                            ),
+                          )
+                          .toList(),
                     ),
                   ),
                   const SizedBox(height: 30),
