@@ -28,12 +28,24 @@ class NextShift extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    const charcoal = Color.fromRGBO(26, 26, 26, 1);
+    const brandRed = Color.fromRGBO(204, 51, 51, 1);
+
     return MaterialApp(
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color.fromRGBO(204, 51, 51, 1),
-          primary: const Color.fromRGBO(26, 26, 26, 1),
+          seedColor: brandRed,
+          primary: charcoal,
+          secondary: brandRed,
           surface: Colors.white,
+        ),
+        appBarTheme: const AppBarTheme(
+          backgroundColor: charcoal,
+          foregroundColor: Colors.white,
+        ),
+        floatingActionButtonTheme: const FloatingActionButtonThemeData(
+          backgroundColor: brandRed,
+          foregroundColor: Colors.white,
         ),
       ),
       home: Home(),

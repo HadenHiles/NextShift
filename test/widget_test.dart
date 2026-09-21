@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:nextshift/widgets/Heading.dart';
+import 'package:nextshift/widgets/PlatformBadge.dart';
 
 void main() {
   testWidgets('Heading renders uppercase text at the requested size', (tester) async {
@@ -20,5 +21,18 @@ void main() {
 
     final text = tester.widget<Text>(find.text('NEXT SHIFT'));
     expect(text.style?.fontSize, 30);
+  });
+
+  testWidgets('Platform badge identifies the 10,000 Shots App', (tester) async {
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: Scaffold(
+          body: PlatformBadge(platform: '10,000 Shots App'),
+        ),
+      ),
+    );
+
+    expect(find.text('10K Shots'), findsOneWidget);
+    expect(find.byIcon(Icons.sports_hockey), findsOneWidget);
   });
 }

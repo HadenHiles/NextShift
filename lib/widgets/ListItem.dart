@@ -5,6 +5,7 @@ import 'package:nextshift/RequestDetail.dart';
 import 'package:nextshift/globals/Roles.dart';
 import 'package:nextshift/models/Item.dart';
 import 'package:nextshift/models/RequestType.dart';
+import 'package:nextshift/widgets/PlatformBadge.dart';
 import '../Login.dart';
 
 class ListItem extends StatefulWidget {
@@ -172,57 +173,10 @@ class _ListItemState extends State<ListItem> {
                       ),
                     ),
                     Container(
-                      margin: EdgeInsets.only(left: 20),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          widget.item.platform == "The Pond"
-                              ? Transform.scale(
-                                  scale: 0.75,
-                                  child: Tooltip(
-                                    message: "The Pond",
-                                    child: ClipOval(
-                                      child: TextButton(
-                                        style: TextButton.styleFrom(
-                                          padding: EdgeInsets.symmetric(vertical: 30),
-                                        ),
-                                        onPressed: () {
-                                          widget.filterBy(null, widget.item.platform);
-                                        },
-                                        child: Image(
-                                          height: 30,
-                                          image: AssetImage(
-                                            'assets/images/logos/thepond_rgb.png',
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                )
-                              : Transform.scale(
-                                  scale: 0.75,
-                                  child: Tooltip(
-                                    message: "How To Hockey",
-                                    child: ClipOval(
-                                      child: TextButton(
-                                        style: TextButton.styleFrom(
-                                          padding: EdgeInsets.symmetric(vertical: 30),
-                                        ),
-                                        onPressed: () {
-                                          widget.filterBy(null, widget.item.platform);
-                                        },
-                                        child: Image(
-                                          height: 35,
-                                          image: AssetImage(
-                                            'assets/images/logos/hth_logo.png',
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                        ],
+                      margin: EdgeInsets.only(left: 12),
+                      child: PlatformBadge(
+                        platform: widget.item.platform,
+                        onTap: () => widget.filterBy(null, widget.item.platform),
                       ),
                     ),
                   ],

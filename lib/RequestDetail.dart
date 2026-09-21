@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:nextshift/CommentScreen.dart';
+import 'package:nextshift/widgets/PlatformBadge.dart';
 import 'Home.dart';
 import 'Login.dart';
 import 'Request.dart';
@@ -256,52 +257,8 @@ class _RequestDetailState extends State<RequestDetail> {
                                 ),
                               ),
                               Container(
-                                margin: EdgeInsets.only(left: 20),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.end,
-                                  children: [
-                                    widget.item.platform == "The Pond"
-                                        ? Transform.scale(
-                                            scale: 0.75,
-                                            child: Tooltip(
-                                              message: "The Pond",
-                                              child: ClipOval(
-                                                child: Container(
-                                                  padding: EdgeInsets.symmetric(
-                                                    vertical: 30,
-                                                  ),
-                                                  child: Image(
-                                                    height: 30,
-                                                    image: AssetImage(
-                                                      'assets/images/logos/thepond_rgb.png',
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                          )
-                                        : Transform.scale(
-                                            scale: 0.75,
-                                            child: Tooltip(
-                                              message: "How To Hockey",
-                                              child: ClipOval(
-                                                child: Container(
-                                                  padding: EdgeInsets.symmetric(
-                                                    vertical: 30,
-                                                  ),
-                                                  child: Image(
-                                                    height: 35,
-                                                    image: AssetImage(
-                                                      'assets/images/logos/hth_logo.png',
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                  ],
-                                ),
+                                margin: EdgeInsets.only(left: 12),
+                                child: PlatformBadge(platform: item.platform),
                               ),
                             ],
                           ),
