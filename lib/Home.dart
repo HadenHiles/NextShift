@@ -1,5 +1,3 @@
-import 'dart:js_util';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -12,7 +10,7 @@ import 'widgets/Heading.dart';
 import 'Login.dart';
 
 class Home extends StatefulWidget {
-  Home({Key key}) : super(key: key);
+  const Home({super.key});
 
   @override
   _HomeState createState() => _HomeState();
@@ -25,8 +23,8 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   // State variables
   bool speedDialOpen = false;
   bool initialized = false;
-  RequestType typeFilter;
-  String platformFilter;
+  RequestType? typeFilter;
+  String? platformFilter;
   bool showCompleted = false;
 
   @override
@@ -145,7 +143,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                                         crossAxisAlignment: CrossAxisAlignment.center,
                                         children: [
                                           Text(
-                                            "${typeFilter.descriptor}",
+                                            typeFilter!.descriptor,
                                             style: TextStyle(
                                               color: Colors.black54,
                                             ),
@@ -166,7 +164,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                                             },
                                             icon: Icon(
                                               Icons.close,
-                                              color: Theme.of(context).accentColor,
+                                              color: Theme.of(context).colorScheme.secondary,
                                               size: 15,
                                             ),
                                           ),
@@ -175,7 +173,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                                     ],
                                   ),
                                 )
-                              : Column(),
+                              : const SizedBox.shrink(),
                           platformFilter != null
                               ? Container(
                                   margin: EdgeInsets.only(right: 10, bottom: 5),
@@ -195,7 +193,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                                         crossAxisAlignment: CrossAxisAlignment.center,
                                         children: [
                                           Text(
-                                            "$platformFilter",
+                                            platformFilter!,
                                             style: TextStyle(
                                               color: Colors.black54,
                                             ),
@@ -216,7 +214,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                                             },
                                             icon: Icon(
                                               Icons.close,
-                                              color: Theme.of(context).accentColor,
+                                              color: Theme.of(context).colorScheme.secondary,
                                               size: 15,
                                             ),
                                           ),
@@ -225,7 +223,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                                     ],
                                   ),
                                 )
-                              : Column(),
+                              : const SizedBox.shrink(),
                         ],
                       ),
                     ),
@@ -248,7 +246,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
         builder: (context, snapshot) {
           if (!snapshot.hasData) return LinearProgressIndicator();
 
-          return _buildItemList(context, snapshot.data.docs);
+          return _buildItemList(context, snapshot.data!.docs);
         });
   }
 
@@ -266,7 +264,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
     items = items.where((element) => element.item.complete == showCompleted).toList();
 
     if (typeFilter != null) {
-      items = items.where((element) => element.item.type.name == typeFilter.name).toList();
+      items = items.where((element) => element.item.type.name == typeFilter!.name).toList();
     }
 
     if (platformFilter != null) {
@@ -297,8 +295,8 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                 (showCompleted || typeFilter != null || platformFilter != null)
                     ? Container(
                         margin: EdgeInsets.only(top: 15),
-                        child: FlatButton(
-                          padding: EdgeInsets.all(20),
+                        child: TextButton(
+                          style: TextButton.styleFrom(padding: EdgeInsets.all(20)),
                           onPressed: () => setState(() {
                             showCompleted = false;
                             typeFilter = null;
@@ -315,7 +313,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
 
   SpeedDial _buildSpeedDial() {
     return SpeedDial(
-      backgroundColor: !speedDialOpen ? Theme.of(context).accentColor : Theme.of(context).primaryColor,
+      backgroundColor: !speedDialOpen ? Theme.of(context).colorScheme.secondary : Theme.of(context).primaryColor,
       child: !speedDialOpen
           ? Icon(Icons.add)
           : Icon(
@@ -337,8 +335,8 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
       children: [
         SpeedDialChild(
           child: Icon(Icons.bug_report, color: Colors.white),
-          backgroundColor: Theme.of(context).accentColor,
-          foregroundColor: Theme.of(context).accentColor,
+          backgroundColor: Theme.of(context).colorScheme.secondary,
+          foregroundColor: Theme.of(context).colorScheme.secondary,
           onTap: () {
             newRequest("Bug");
           },
@@ -414,7 +412,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
       RequestType requestType = RequestType(name: type);
 
       if (type == "Bug") {
-        requestType.color = Theme.of(context).accentColor;
+        requestType.color = Theme.of(context).colorScheme.secondary;
         requestType.descriptor = "Report a bug";
         requestType.icon = Icons.bug_report;
       } else if (type == "Idea") {
@@ -441,19 +439,14 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
     }
   }
 
-  void filterBy(RequestType type, String platform) {
+  void filterBy(RequestType? type, String? platform) {
     setState(() {
-      if (type != null) {
-        typeFilter = type;
-      }
-
-      if (platform != null) {
-        platformFilter = platform;
-      }
+      if (type != null) typeFilter = type;
+      if (platform != null) platformFilter = platform;
     });
   }
 
-  bool includeType(RequestType type) {
-    return (type == null || type.name == typeFilter.name);
+  bool includeType(RequestType? type) {
+    return type == null || type.name == typeFilter?.name;
   }
 }

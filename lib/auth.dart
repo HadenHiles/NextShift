@@ -1,22 +1,28 @@
 import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
 import 'models/SubscriptionResponse.dart';
 
 final FirebaseAuth auth = FirebaseAuth.instance;
+final GoogleSignIn googleSignIn = GoogleSignIn.instance;
+final Future<void> googleSignInInitialization = googleSignIn.initialize();
 
 Future<UserCredential> signInWithGoogle() async {
-  // Trigger the authentication flow
-  final GoogleSignInAccount googleUser = await GoogleSignIn().signIn();
+  if (kIsWeb) {
+    return auth.signInWithPopup(GoogleAuthProvider());
+  }
+
+  await googleSignInInitialization;
+  final GoogleSignInAccount googleUser = await googleSignIn.authenticate();
 
   // Obtain the auth details from the request
   final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
 
   // Create a new credential
-  final GoogleAuthCredential credential = GoogleAuthProvider.credential(
-    accessToken: googleAuth.accessToken,
+  final OAuthCredential credential = GoogleAuthProvider.credential(
     idToken: googleAuth.idToken,
   );
 
@@ -28,11 +34,13 @@ Future<UserCredential> signInWithGoogle() async {
 
 Future<bool> hasMembership() async {
   // Map the data to send
-  var data = new Map<String, dynamic>();
-  data['email'] = auth.currentUser.email;
+  final user = auth.currentUser;
+  if (user == null) return false;
+
+  final data = <String, dynamic>{'email': user.email};
 
   final http.Response response = await http.post(
-    'https://thepond.howtohockey.com/wp-content/themes/meltingpot-child/active-membership.php',
+    Uri.parse('https://thepond.howtohockey.com/wp-content/themes/meltingpot-child/active-membership.php'),
     body: data,
   );
   if (response.statusCode == 200) {
@@ -48,7 +56,11 @@ Future<bool> hasMembership() async {
 }
 
 Future<bool> isAdmin() async {
-  return FirebaseFirestore.instance.collection('admins').doc(FirebaseAuth.instance.currentUser?.uid).get().then((value) => value != null);
+  final user = auth.currentUser;
+  if (user == null) return false;
+
+  final snapshot = await FirebaseFirestore.instance.collection('admins').doc(user.uid).get();
+  return snapshot.exists;
 }
 
 Future<void> signOut() async {

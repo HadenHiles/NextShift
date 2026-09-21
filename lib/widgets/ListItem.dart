@@ -8,12 +8,10 @@ import 'package:nextshift/models/RequestType.dart';
 import '../Login.dart';
 
 class ListItem extends StatefulWidget {
-  ListItem({Key key, this.item, this.filterBy, this.filterType, this.includeType}) : super(key: key);
+  const ListItem({super.key, required this.item, required this.filterBy});
 
   final Item item;
-  final Function filterBy;
-  final RequestType filterType;
-  final Function includeType;
+  final void Function(RequestType?, String?) filterBy;
 
   @override
   _ListItemState createState() => _ListItemState();
@@ -33,7 +31,7 @@ class _ListItemState extends State<ListItem> {
 
   @override
   Widget build(BuildContext context) {
-    final hasVoted = user != null ? widget.item.voters.contains(user.uid) : false;
+    final hasVoted = user != null ? widget.item.voters.contains(user!.uid) : false;
     final votesTitle = widget.item.votes > 1 ? "Votes" : "Vote";
 
     return Stack(
@@ -91,7 +89,7 @@ class _ListItemState extends State<ListItem> {
                                   child: IconButton(
                                     icon: Icon(
                                       Icons.thumb_up,
-                                      color: hasVoted ? Theme.of(context).accentColor : Colors.grey,
+                                      color: hasVoted ? Theme.of(context).colorScheme.secondary : Colors.grey,
                                     ),
                                     onPressed: hasVoted
                                         ? () async {
@@ -100,8 +98,8 @@ class _ListItemState extends State<ListItem> {
                                                 final freshSnapshot = await transaction.get(widget.item.reference);
                                                 final fresh = Item.fromSnapshot(freshSnapshot);
 
-                                                if (fresh.voters.contains(user.uid)) {
-                                                  fresh.voters.remove(user.uid);
+                                                if (fresh.voters.contains(user!.uid)) {
+                                                  fresh.voters.remove(user!.uid);
                                                 }
 
                                                 transaction.update(widget.item.reference, {
@@ -122,8 +120,8 @@ class _ListItemState extends State<ListItem> {
                                                   final freshSnapshot = await transaction.get(widget.item.reference);
                                                   final fresh = Item.fromSnapshot(freshSnapshot);
 
-                                                  if (!fresh.voters.contains(user.uid)) {
-                                                    fresh.voters.add(user.uid);
+                                                  if (!fresh.voters.contains(user!.uid)) {
+                                                    fresh.voters.add(user!.uid);
                                                   }
 
                                                   transaction.update(widget.item.reference, {
@@ -185,9 +183,9 @@ class _ListItemState extends State<ListItem> {
                                   child: Tooltip(
                                     message: "The Pond",
                                     child: ClipOval(
-                                      child: FlatButton(
-                                        padding: EdgeInsets.symmetric(
-                                          vertical: 30,
+                                      child: TextButton(
+                                        style: TextButton.styleFrom(
+                                          padding: EdgeInsets.symmetric(vertical: 30),
                                         ),
                                         onPressed: () {
                                           widget.filterBy(null, widget.item.platform);
@@ -207,9 +205,9 @@ class _ListItemState extends State<ListItem> {
                                   child: Tooltip(
                                     message: "How To Hockey",
                                     child: ClipOval(
-                                      child: FlatButton(
-                                        padding: EdgeInsets.symmetric(
-                                          vertical: 30,
+                                      child: TextButton(
+                                        style: TextButton.styleFrom(
+                                          padding: EdgeInsets.symmetric(vertical: 30),
                                         ),
                                         onPressed: () {
                                           widget.filterBy(null, widget.item.platform);
@@ -286,7 +284,7 @@ class _ListItemState extends State<ListItem> {
                   iconSize: 18,
                   icon: Icon(
                     Icons.build,
-                    color: widget.item.upNext ? Theme.of(context).accentColor : Colors.grey,
+                    color: widget.item.upNext ? Theme.of(context).colorScheme.secondary : Colors.grey,
                   ),
                   onPressed: !isAdmin
                       ? () {

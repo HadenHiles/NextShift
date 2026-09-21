@@ -8,23 +8,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:nextshift/main.dart';
+import 'package:nextshift/widgets/Heading.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(NextShift());
+  testWidgets('Heading renders uppercase text at the requested size', (tester) async {
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: Heading(text: 'Next Shift', size: 30),
+      ),
+    );
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
-
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
-
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    final text = tester.widget<Text>(find.text('NEXT SHIFT'));
+    expect(text.style?.fontSize, 30);
   });
 }

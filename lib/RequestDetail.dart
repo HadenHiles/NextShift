@@ -11,7 +11,7 @@ import 'models/Item.dart';
 final bool admin = Roles.admins.contains(FirebaseAuth.instance.currentUser?.uid);
 
 class RequestDetail extends StatefulWidget {
-  RequestDetail({Key key, this.item}) : super(key: key);
+  const RequestDetail({super.key, required this.item});
 
   final Item item;
 
@@ -24,7 +24,7 @@ class _RequestDetailState extends State<RequestDetail> {
   final user = FirebaseAuth.instance.currentUser;
 
   // State variables
-  Item item;
+  late Item item;
   bool isOwner = false;
   bool isAdmin = false;
 
@@ -117,7 +117,7 @@ class _RequestDetailState extends State<RequestDetail> {
   }
 
   Widget _buildDetails() {
-    bool hasVoted = user != null ? item.voters.contains(user.uid) : false;
+    bool hasVoted = user != null ? item.voters.contains(user!.uid) : false;
     String votesTitle = item.votes > 1 ? "Votes" : "Vote";
 
     return Row(
@@ -137,8 +137,8 @@ class _RequestDetailState extends State<RequestDetail> {
                     stream: FirebaseFirestore.instance.collection('items').doc(item.reference.id).snapshots(),
                     builder: (context, snapshot) {
                       if (!snapshot.hasData) return LinearProgressIndicator();
-                      Item item = Item.fromSnapshot(snapshot.data);
-                      hasVoted = user != null ? item.voters.contains(user.uid) : false;
+                      Item item = Item.fromSnapshot(snapshot.data!);
+                      hasVoted = user != null ? item.voters.contains(user!.uid) : false;
                       votesTitle = item.votes > 1 ? "Votes" : "Vote";
 
                       return Card(
@@ -160,7 +160,7 @@ class _RequestDetailState extends State<RequestDetail> {
                                     IconButton(
                                       icon: Icon(
                                         Icons.thumb_up,
-                                        color: hasVoted ? Theme.of(context).accentColor : Colors.grey,
+                                        color: hasVoted ? Theme.of(context).colorScheme.secondary : Colors.grey,
                                       ),
                                       onPressed: hasVoted
                                           ? () async {
@@ -169,8 +169,8 @@ class _RequestDetailState extends State<RequestDetail> {
                                                   final freshSnapshot = await transaction.get(item.reference);
                                                   final fresh = Item.fromSnapshot(freshSnapshot);
 
-                                                  if (fresh.voters.contains(user.uid)) {
-                                                    fresh.voters.remove(user.uid);
+                                                  if (fresh.voters.contains(user!.uid)) {
+                                                    fresh.voters.remove(user!.uid);
                                                   }
 
                                                   transaction.update(item.reference, {
@@ -195,8 +195,8 @@ class _RequestDetailState extends State<RequestDetail> {
                                                     final freshSnapshot = await transaction.get(item.reference);
                                                     final fresh = Item.fromSnapshot(freshSnapshot);
 
-                                                    if (!fresh.voters.contains(user.uid)) {
-                                                      fresh.voters.add(user.uid);
+                                                    if (!fresh.voters.contains(user!.uid)) {
+                                                      fresh.voters.add(user!.uid);
                                                     }
 
                                                     transaction.update(item.reference, {

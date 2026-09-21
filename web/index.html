@@ -35,26 +35,7 @@
 </head>
 
 <body>
-  <!-- This script installs service_worker.js to provide PWA functionality to
-       application. For more information, see:
-       https://developers.google.com/web/fundamentals/primers/service-workers -->
-  <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('flutter-first-frame', function () {
-        navigator.serviceWorker.register('flutter_service_worker.js');
-      });
-    }
-  </script>
-
-  <!-- The core Firebase JS SDK is always required and must be listed first -->
-  <script defer src="https://www.gstatic.com/firebasejs/7.24.0/firebase-app.js"></script>
-  <!-- Firebase libraries -->
-  <script defer src="https://www.gstatic.com/firebasejs/7.24.0/firebase-analytics.js"></script>
-  <script defer src="https://www.gstatic.com/firebasejs/7.24.0/firebase-auth.js"></script>
-  <script defer src="https://www.gstatic.com/firebasejs/7.24.0/firebase-firestore.js"></script>
-  <script defer src="./init-firebase.js"></script>
-
-  <script defer src="main.dart.js" type="application/javascript"></script>
+  <script src="flutter_bootstrap.js" async></script>
 </body>
 
 </html>

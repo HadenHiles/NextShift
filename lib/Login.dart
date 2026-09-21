@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter_signin_button/flutter_signin_button.dart';
 import 'widgets/Heading.dart';
 import 'Home.dart';
 import 'auth.dart';
 
 class Login extends StatefulWidget {
-  Login({Key key}) : super(key: key);
+  const Login({super.key});
 
   // This widget is the home page of your application. It is stateful, meaning
   // that it has a State object (defined below) that contains fields that affect
@@ -24,9 +23,6 @@ class Login extends StatefulWidget {
 class _LoginState extends State<Login> {
   // Static variables
   final FirebaseAuth auth = FirebaseAuth.instance;
-  final User user = FirebaseAuth.instance.currentUser;
-  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-
   // State variables
   bool signedIn = FirebaseAuth.instance.currentUser != null;
 
@@ -35,10 +31,11 @@ class _LoginState extends State<Login> {
     super.initState();
 
     FirebaseAuth.instance.authStateChanges().listen((firebaseUser) {
-      if (firebaseUser != null)
+      if (firebaseUser != null && mounted) {
         setState(() {
           signedIn = true;
         });
+      }
     });
   }
 
@@ -58,7 +55,6 @@ class _LoginState extends State<Login> {
     }
 
     return Scaffold(
-      key: _scaffoldKey,
       backgroundColor: Color.fromRGBO(240, 240, 240, 1),
       appBar: AppBar(
         leading: InkWell(
@@ -95,23 +91,25 @@ class _LoginState extends State<Login> {
                   SizedBox(
                     height: 60,
                     width: 360,
-                    child: SignInButton(
-                      Buttons.Google,
+                    child: ElevatedButton.icon(
+                      icon: const Icon(Icons.login),
+                      label: const Text('Sign in with Google'),
                       onPressed: () {
                         socialSignIn(context, 'google', (error) {
-                          _scaffoldKey.currentState.hideCurrentSnackBar();
-                          _scaffoldKey.currentState.showSnackBar(
-                            SnackBar(
-                              content: Text(error),
-                              duration: Duration(seconds: 10),
-                              action: SnackBarAction(
-                                label: "Dismiss",
-                                onPressed: () {
-                                  _scaffoldKey.currentState.hideCurrentSnackBar();
-                                },
+                          ScaffoldMessenger.of(context)
+                            ..hideCurrentSnackBar()
+                            ..showSnackBar(
+                              SnackBar(
+                                content: Text(error),
+                                duration: Duration(seconds: 10),
+                                action: SnackBarAction(
+                                  label: "Dismiss",
+                                  onPressed: () {
+                                    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                                  },
+                                ),
                               ),
-                            ),
-                          );
+                            );
                         });
                       },
                     ),
@@ -125,23 +123,25 @@ class _LoginState extends State<Login> {
     );
   }
 
-  socialSignIn(BuildContext context, String provider, Function error) async {
+  Future<void> socialSignIn(BuildContext context, String provider, void Function(String) showError) async {
     if (provider == 'google') {
-      signInWithGoogle().then((credential) {
+      try {
+        await signInWithGoogle();
+        if (!mounted) return;
         setState(() {
           signedIn = true;
         });
-      }).catchError((e) async {
+      } on FirebaseAuthException catch (error) {
         var message = "There was an error signing in with Google";
-        if (e.code == "user-disabled") {
+        if (error.code == "user-disabled") {
           message = "Your account has been disabled by the administrator";
-        } else if (e.code == "account-exists-with-different-credential") {
+        } else if (error.code == "account-exists-with-different-credential") {
           message = "An account already exists with the same email address but different sign-in credentials. Please try signing in a different way";
         }
-
-        print(e);
-        await error(message);
-      });
+        showError(message);
+      } catch (_) {
+        showError("There was an error signing in with Google");
+      }
     }
   }
 }

@@ -13,7 +13,7 @@ class Item {
   final bool complete;
   final DocumentReference reference;
 
-  Item.fromMap(Map<String, dynamic> map, {this.reference})
+  Item.fromMap(Map<String, dynamic> map, {required this.reference})
       : assert(map['name'] != null),
         assert(map['votes'] != null),
         assert(map['voters'] != null),
@@ -32,5 +32,9 @@ class Item {
         upNext = map['up_next'] != null ? map['up_next'] : false,
         complete = map['complete'] != null ? map['complete'] : false;
 
-  Item.fromSnapshot(DocumentSnapshot snapshot) : this.fromMap(snapshot.data(), reference: snapshot.reference);
+  Item.fromSnapshot(DocumentSnapshot snapshot)
+      : this.fromMap(
+          snapshot.data()! as Map<String, dynamic>,
+          reference: snapshot.reference,
+        );
 }

@@ -3,12 +3,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class Comment {
   final String displayName;
   final String userId;
-  final String avatarUrl;
+  final String? avatarUrl;
   final String comment;
   final Timestamp timestamp;
-  final DocumentReference reference;
+  final DocumentReference? reference;
 
-  Comment({this.displayName, this.userId, this.avatarUrl, this.comment, this.timestamp, this.reference});
+  Comment({required this.displayName, required this.userId, this.avatarUrl, required this.comment, required this.timestamp, this.reference});
 
   Comment.fromMap(Map<String, dynamic> map, {this.reference})
       : assert(map['displayName'] != null),
@@ -22,5 +22,9 @@ class Comment {
         timestamp = map['timestamp'],
         avatarUrl = map['avatarUrl'];
 
-  Comment.fromSnapshot(DocumentSnapshot snapshot) : this.fromMap(snapshot.data(), reference: snapshot.reference);
+  Comment.fromSnapshot(DocumentSnapshot snapshot)
+      : this.fromMap(
+          snapshot.data()! as Map<String, dynamic>,
+          reference: snapshot.reference,
+        );
 }

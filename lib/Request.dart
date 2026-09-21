@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:dropdown_formfield/dropdown_formfield.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:nextshift/RequestDetail.dart';
@@ -8,10 +7,10 @@ import 'models/Item.dart';
 import 'models/RequestType.dart';
 
 class Request extends StatefulWidget {
-  Request({Key key, this.type, this.editItem}) : super(key: key);
+  const Request({super.key, required this.type, this.editItem});
 
   final RequestType type;
-  final Item editItem;
+  final Item? editItem;
 
   @override
   _RequestState createState() => _RequestState();
@@ -25,8 +24,8 @@ class _RequestState extends State<Request> {
   final nameFieldController = TextEditingController();
   final descriptionFieldController = TextEditingController();
 
-  RequestType requestType;
-  String platform;
+  late RequestType requestType;
+  late String platform;
   List<RequestType> types = [
     RequestType(name: "Feature Request"),
     RequestType(name: "Content Request"),
@@ -47,39 +46,24 @@ class _RequestState extends State<Request> {
 
   @override
   void initState() {
-    if (user == null) {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (context) {
-            return Login();
-          },
-        ),
-      );
-    }
-
-    if (requestType == null) {
-      setState(() {
-        requestType = widget.type;
-      });
-    }
-
-    if (platform == null) {
-      setState(() {
-        platform = "The Pond";
-      });
-    }
+    super.initState();
+    requestType = widget.editItem?.type ?? widget.type;
+    platform = widget.editItem?.platform ?? "The Pond";
 
     if (widget.editItem != null) {
-      nameFieldController.text = widget.editItem.name;
-      descriptionFieldController.text = widget.editItem.description;
-
-      setState(() {
-        requestType = widget.editItem.type;
-        platform = widget.editItem.platform;
-      });
+      nameFieldController.text = widget.editItem!.name;
+      descriptionFieldController.text = widget.editItem!.description;
     }
 
-    super.initState();
+    if (user == null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (context) => Login()),
+          );
+        }
+      });
+    }
   }
 
   @override
@@ -143,8 +127,8 @@ class _RequestState extends State<Request> {
                         child: Column(
                           children: [
                             TextFormField(
-                              validator: (String value) {
-                                if (value.isEmpty) {
+                              validator: (String? value) {
+                                if (value == null || value.isEmpty) {
                                   return 'Please enter a title';
                                 }
                                 return null;
@@ -154,30 +138,28 @@ class _RequestState extends State<Request> {
                             ),
                             Padding(
                               padding: EdgeInsets.only(top: 25),
-                              child: DropDownFormField(
-                                titleText: 'Platform',
-                                hintText: 'Please choose a platform',
-                                value: platform,
+                              child: DropdownButtonFormField<String>(
+                                initialValue: platform,
+                                decoration: InputDecoration(labelText: 'Platform'),
+                                items: platforms
+                                    .map((entry) => DropdownMenuItem<String>(
+                                          value: entry['value'] as String,
+                                          child: Text(entry['display'] as String),
+                                        ))
+                                    .toList(),
                                 onSaved: (value) {
-                                  setState(() {
-                                    platform = value;
-                                  });
+                                  if (value != null) platform = value;
                                 },
                                 onChanged: (value) {
-                                  setState(() {
-                                    platform = value;
-                                  });
+                                  if (value != null) setState(() => platform = value);
                                 },
-                                dataSource: platforms.toList(),
-                                textField: 'display',
-                                valueField: 'value',
                               ),
                             ),
                             Padding(
                               padding: EdgeInsets.only(top: 25),
                               child: TextFormField(
-                                validator: (String value) {
-                                  if (value.isEmpty) {
+                                validator: (String? value) {
+                                  if (value == null || value.isEmpty) {
                                     return 'Please enter a description';
                                   }
                                   return null;
@@ -201,37 +183,38 @@ class _RequestState extends State<Request> {
       ),
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.check),
-        backgroundColor: Theme.of(context).accentColor,
+        backgroundColor: Theme.of(context).colorScheme.secondary,
         onPressed: widget.editItem == null
             ? () {
-                if (_formKey.currentState.validate()) {
+                final currentUser = user;
+                if (currentUser != null && (_formKey.currentState?.validate() ?? false)) {
                   FirebaseFirestore.instance.collection('items').add({
-                    'name': nameFieldController.text.toString().trim(),
+                    'name': nameFieldController.text.trim(),
                     'votes': 1,
-                    'voters': [user.uid],
-                    'description': descriptionFieldController.text.toString().trim(),
+                    'voters': [currentUser.uid],
+                    'description': descriptionFieldController.text.trim(),
                     'platform': platform,
                     'type': requestType.name,
-                    'created_by': user.uid ?? null,
+                    'created_by': currentUser.uid,
                     'up_next': false,
                     'complete': false,
                   });
-
                   Navigator.of(context).pop();
                 }
               }
             : () {
-                if (_formKey.currentState.validate()) {
+                final editItem = widget.editItem!;
+                if (_formKey.currentState?.validate() ?? false) {
                   FirebaseFirestore.instance.runTransaction((transaction) async {
-                    transaction.update(widget.editItem.reference, {
-                      'name': nameFieldController.text.toString().trim(),
-                      'description': descriptionFieldController.text.toString().trim(),
+                    transaction.update(editItem.reference, {
+                      'name': nameFieldController.text.trim(),
+                      'description': descriptionFieldController.text.trim(),
                       'platform': platform,
                       'type': requestType.name,
                     });
 
                     Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) {
-                      return RequestDetail(item: widget.editItem);
+                      return RequestDetail(item: editItem);
                     }));
                   });
                 }

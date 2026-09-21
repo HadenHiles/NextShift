@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
 class Heading extends StatelessWidget {
-  Heading({
-    Key key,
-    this.text,
-    this.size,
-  }) : super(key: key);
+  const Heading({
+    super.key,
+    required this.text,
+    required this.size,
+  });
 
   final String text;
   final double size;

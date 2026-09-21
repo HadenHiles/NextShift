@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 
 class RequestType {
-  String name;
-  String descriptor;
-  Color color;
-  IconData icon;
+  final String name;
+  late String descriptor;
+  late Color color;
+  late IconData icon;
 
-  RequestType({this.name}) {
+  RequestType({required this.name}) {
     if (name == "Bug") {
       this.color = Color.fromRGBO(204, 51, 51, 1);
       this.descriptor = "Report a bug";

@@ -8,34 +8,30 @@ import 'models/Comment.dart';
 final bool admin = Roles.admins.contains(FirebaseAuth.instance.currentUser?.uid);
 
 class CommentScreen extends StatefulWidget {
-  CommentScreen({this.requestId, this.requestOwner});
+  const CommentScreen({super.key, required this.requestId, required this.requestOwner});
 
   final String requestId;
   final String requestOwner;
 
   @override
-  _CommentScreenState createState() => _CommentScreenState(requestId: this.requestId, requestOwner: this.requestOwner);
+  _CommentScreenState createState() => _CommentScreenState();
 }
 
 class _CommentScreenState extends State<CommentScreen> {
-  final String requestId;
-  final String requestOwner;
-  final User currentUser = FirebaseAuth.instance.currentUser;
+  User? get currentUser => FirebaseAuth.instance.currentUser;
 
   bool didFetchComments = false;
   List<CommentItem> fetchedComments = [];
-  CommentItem editComment;
+  CommentItem? editComment;
 
   final _formKey = GlobalKey<FormState>();
-  TextEditingController _commentController = TextEditingController();
-
-  _CommentScreenState({this.requestId, this.requestOwner});
+  final TextEditingController _commentController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     // Set the edit comment text if the user is editing a comment
     if (editComment != null) {
-      _commentController.text = editComment.comment.comment;
+      _commentController.text = editComment!.comment.comment;
     }
 
     return Expanded(
@@ -67,7 +63,7 @@ class _CommentScreenState extends State<CommentScreen> {
                                       labelText: 'Update comment...',
                                     ),
                                     validator: (value) {
-                                      if (value.isEmpty) {
+                                      if (value == null || value.isEmpty) {
                                         return "Please write a comment";
                                       }
 
@@ -79,24 +75,22 @@ class _CommentScreenState extends State<CommentScreen> {
                                     crossAxisAlignment: CrossAxisAlignment.center,
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
-                                      OutlineButton(
+                                      IconButton(
                                         onPressed: () {
-                                          updateComment(editComment, _commentController.text);
+                                          updateComment(editComment!, _commentController.text);
                                         },
-                                        borderSide: BorderSide.none,
-                                        child: Icon(
+                                        icon: Icon(
                                           Icons.check,
                                           color: Colors.green,
                                         ),
                                       ),
-                                      OutlineButton(
+                                      IconButton(
                                         onPressed: () {
-                                          deleteComment(editComment.comment);
+                                          deleteComment(editComment!.comment);
                                         },
-                                        borderSide: BorderSide.none,
-                                        child: Icon(
+                                        icon: Icon(
                                           Icons.delete,
-                                          color: Theme.of(context).accentColor,
+                                          color: Theme.of(context).colorScheme.secondary,
                                         ),
                                       ),
                                     ],
@@ -113,21 +107,20 @@ class _CommentScreenState extends State<CommentScreen> {
                                     ),
                                     onFieldSubmitted: addComment,
                                     validator: (value) {
-                                      if (value.isEmpty) {
+                                      if (value == null || value.isEmpty) {
                                         return "Please write a comment";
                                       }
 
                                       return null;
                                     },
                                   ),
-                                  trailing: OutlineButton(
+                                  trailing: IconButton(
                                     onPressed: () {
                                       addComment(_commentController.text);
                                     },
-                                    borderSide: BorderSide.none,
-                                    child: Icon(
+                                    icon: Icon(
                                       Icons.send,
-                                      color: Theme.of(context).accentColor,
+                                      color: Theme.of(context).colorScheme.secondary,
                                     ),
                                   ),
                                 ),
@@ -144,19 +137,19 @@ class _CommentScreenState extends State<CommentScreen> {
   Widget buildComments() {
     if (this.didFetchComments == false) {
       return StreamBuilder<QuerySnapshot>(
-          stream: FirebaseFirestore.instance.collection('comments').doc(requestId).collection("comments").orderBy('timestamp', descending: false).snapshots(),
+          stream: FirebaseFirestore.instance.collection('comments').doc(widget.requestId).collection("comments").orderBy('timestamp', descending: false).snapshots(),
           builder: (context, snapshot) {
             if (!snapshot.hasData) return Container(alignment: FractionalOffset.center, child: CircularProgressIndicator());
 
             this.didFetchComments = true;
-            this.fetchedComments = snapshot.data.docs
+            this.fetchedComments = snapshot.data!.docs
                 .map((data) => CommentItem(
                       comment: Comment.fromSnapshot(data),
                       editCb: triggerEditComment,
                     ))
                 .toList();
 
-            return _buildCommentList(context, snapshot.data.docs);
+            return _buildCommentList(context, snapshot.data!.docs);
           });
     } else {
       // for optimistic updating
@@ -182,16 +175,17 @@ class _CommentScreenState extends State<CommentScreen> {
   }
 
   addComment(String comment) {
-    if (_formKey.currentState.validate()) {
+    final user = currentUser;
+    if (user != null && (_formKey.currentState?.validate() ?? false)) {
       _commentController.clear();
-      FirebaseFirestore.instance.collection("comments").doc(requestId).collection("comments").add({"displayName": currentUser.displayName, "comment": comment, "timestamp": Timestamp.now(), "avatarUrl": currentUser.photoURL, "userId": currentUser.uid});
+      FirebaseFirestore.instance.collection("comments").doc(widget.requestId).collection("comments").add({"displayName": user.displayName ?? 'Anonymous', "comment": comment, "timestamp": Timestamp.now(), "avatarUrl": user.photoURL, "userId": user.uid});
 
       // add comment to the current listview for an optimistic update
       setState(() {
         fetchedComments = List.from(fetchedComments)
           ..add(
             CommentItem(
-              comment: Comment(displayName: currentUser.displayName, comment: comment, timestamp: Timestamp.now(), avatarUrl: currentUser.photoURL, userId: currentUser.uid),
+              comment: Comment(displayName: user.displayName ?? 'Anonymous', comment: comment, timestamp: Timestamp.now(), avatarUrl: user.photoURL, userId: user.uid),
               editCb: triggerEditComment,
             ),
           );
@@ -201,7 +195,7 @@ class _CommentScreenState extends State<CommentScreen> {
     }
   }
 
-  triggerEditComment(CommentItem comment) {
+  void triggerEditComment(CommentItem? comment) {
     setState(() {
       editComment = comment;
       didFetchComments = false;
@@ -209,10 +203,10 @@ class _CommentScreenState extends State<CommentScreen> {
   }
 
   updateComment(CommentItem commentItem, String newComment) {
-    if (_formKey.currentState.validate()) {
+    if (_formKey.currentState?.validate() ?? false) {
       _commentController.clear();
       FirebaseFirestore.instance.runTransaction((transaction) async {
-        transaction.update(commentItem.comment.reference, {'comment': newComment.trim()});
+        transaction.update(commentItem.comment.reference!, {'comment': newComment.trim()});
       });
 
       triggerEditComment(null);
@@ -222,7 +216,7 @@ class _CommentScreenState extends State<CommentScreen> {
   deleteComment(Comment comment) {
     _commentController.clear();
     FirebaseFirestore.instance.runTransaction((transaction) async {
-      transaction.delete(comment.reference);
+      transaction.delete(comment.reference!);
     });
 
     triggerEditComment(null);
@@ -230,10 +224,10 @@ class _CommentScreenState extends State<CommentScreen> {
 }
 
 class CommentItem extends StatelessWidget {
-  const CommentItem({Key key, this.comment, this.editCb}) : super(key: key);
+  const CommentItem({super.key, required this.comment, required this.editCb});
 
   final Comment comment;
-  final Function editCb;
+  final void Function(CommentItem?) editCb;
 
   @override
   Widget build(BuildContext context) {
@@ -247,7 +241,7 @@ class CommentItem extends StatelessWidget {
         ListTile(
           title: Text(comment.comment),
           leading: CircleAvatar(
-            backgroundImage: NetworkImage(comment.avatarUrl),
+            backgroundImage: comment.avatarUrl == null ? null : NetworkImage(comment.avatarUrl!),
           ),
           trailing: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
