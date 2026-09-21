@@ -9,10 +9,11 @@ import 'package:nextshift/widgets/PlatformBadge.dart';
 import '../Login.dart';
 
 class ListItem extends StatefulWidget {
-  const ListItem({super.key, required this.item, required this.filterBy});
+  const ListItem({super.key, required this.item, required this.filterBy, this.rank});
 
   final Item item;
   final void Function(RequestType?, String?) filterBy;
+  final int? rank;
 
   @override
   _ListItemState createState() => _ListItemState();
@@ -33,89 +34,91 @@ class _ListItemState extends State<ListItem> {
 
     return Card(
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(6),
+        borderRadius: BorderRadius.circular(4),
         side: const BorderSide(color: Color(0xFF292E35)),
       ),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: _openDetails,
-        child: Padding(
-          padding: const EdgeInsets.all(16),
+        child: IntrinsicHeight(
           child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              Container(width: 4, color: status.$2),
               SizedBox(
-                width: 48,
+                width: 72,
+                child: Center(
+                  child: Text(
+                    widget.rank == null ? '—' : widget.rank!.toString().padLeft(2, '0'),
+                    style: const TextStyle(color: Color(0xFF59616D), fontSize: 30, fontWeight: FontWeight.w600),
+                  ),
+                ),
+              ),
+              Container(width: 1, margin: const EdgeInsets.symmetric(vertical: 16), color: const Color(0xFF292E35)),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              widget.item.name,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w600, height: 1.15),
+                            ),
+                          ),
+                          if (isAdmin)
+                            PopupMenuButton<String>(
+                              tooltip: 'Manage request',
+                              onSelected: (action) => action == 'status' ? _toggleComplete() : _toggleUpNext(),
+                              itemBuilder: (_) => [
+                                PopupMenuItem(value: 'next', child: Text(widget.item.upNext ? 'Remove from next shift' : 'Mark as next shift')),
+                                PopupMenuItem(value: 'status', child: Text(widget.item.complete ? 'Reopen request' : 'Mark completed')),
+                              ],
+                            ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      Wrap(
+                        spacing: 10,
+                        runSpacing: 10,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        children: [
+                          _StatusBadge(label: status.$1, color: status.$2, icon: status.$3),
+                          ActionChip(
+                            avatar: Icon(widget.item.type.icon, size: 17, color: widget.item.type.color),
+                            label: Text(widget.item.type.name),
+                            onPressed: () => widget.filterBy(widget.item.type, null),
+                          ),
+                          PlatformBadge(
+                            platform: widget.item.platform,
+                            onTap: () => widget.filterBy(null, widget.item.platform),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              SizedBox(
+                width: 78,
                 child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    IconButton(
+                    IconButton.filledTonal(
                       tooltip: hasVoted ? 'Remove vote' : 'Vote for this',
                       onPressed: _toggleVote,
-                      icon: Icon(
-                        hasVoted ? Icons.thumb_up : Icons.thumb_up_outlined,
-                        color: hasVoted ? Theme.of(context).colorScheme.secondary : const Color(0xFF9AA3AF),
-                      ),
+                      icon: Icon(hasVoted ? Icons.arrow_upward : Icons.arrow_upward_outlined),
                     ),
-                    Text(
-                      '${widget.item.votes}',
-                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
-                    ),
-                    const Text('votes', style: TextStyle(fontSize: 11, color: Color(0xFF8A94A3))),
+                    const SizedBox(height: 2),
+                    Text('${widget.item.votes}', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600)),
+                    const Text('VOTES', style: TextStyle(fontSize: 10, color: Color(0xFF8A94A3), fontWeight: FontWeight.w600)),
                   ],
                 ),
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          child: Text(
-                            widget.item.name,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600, height: 1.25),
-                          ),
-                        ),
-                        if (isAdmin)
-                          PopupMenuButton<String>(
-                            tooltip: 'Manage request',
-                            onSelected: (action) => action == 'status' ? _toggleComplete() : _toggleUpNext(),
-                            itemBuilder: (_) => [
-                              PopupMenuItem(value: 'next', child: Text(widget.item.upNext ? 'Remove from next shift' : 'Mark as next shift')),
-                              PopupMenuItem(value: 'status', child: Text(widget.item.complete ? 'Reopen request' : 'Mark completed')),
-                            ],
-                          ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    Wrap(
-                      spacing: 10,
-                      runSpacing: 10,
-                      crossAxisAlignment: WrapCrossAlignment.center,
-                      children: [
-                        _StatusBadge(label: status.$1, color: status.$2, icon: status.$3),
-                        ActionChip(
-                          avatar: Icon(widget.item.type.icon, size: 17, color: widget.item.type.color),
-                          label: Text(widget.item.type.name),
-                          onPressed: () => widget.filterBy(widget.item.type, null),
-                        ),
-                        PlatformBadge(
-                          platform: widget.item.platform,
-                          onTap: () => widget.filterBy(null, widget.item.platform),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 4),
-              const Padding(
-                padding: EdgeInsets.only(top: 2),
-                child: Icon(Icons.chevron_right, color: Color(0xFF737C89)),
               ),
             ],
           ),

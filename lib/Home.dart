@@ -25,8 +25,9 @@ class _HomeState extends State<Home> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        toolbarHeight: 68,
-        titleSpacing: 20,
+        toolbarHeight: 72,
+        titleSpacing: 24,
+        shape: const Border(bottom: BorderSide(color: Color(0xFF282D34))),
         title: Row(
           children: [
             Image.asset(
@@ -41,6 +42,13 @@ class _HomeState extends State<Home> {
                 fontSize: 28,
                 fontWeight: FontWeight.w600,
               ),
+            ),
+            const SizedBox(width: 14),
+            Container(width: 1, height: 22, color: const Color(0xFF343A43)),
+            const SizedBox(width: 14),
+            const Text(
+              'COMMUNITY CALL',
+              style: TextStyle(color: Color(0xFF8E98A6), fontSize: 13, fontWeight: FontWeight.w500),
             ),
           ],
         ),
@@ -58,23 +66,28 @@ class _HomeState extends State<Home> {
         ],
       ),
       body: SafeArea(
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 920),
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  _buildIntro(),
-                  const SizedBox(height: 24),
-                  _buildFilters(),
-                  const SizedBox(height: 14),
-                  Expanded(child: _buildItems(context)),
-                ],
+        child: Column(
+          children: [
+            _buildIntro(),
+            Expanded(
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 1040),
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 24, 20, 0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        _buildFilters(),
+                        const SizedBox(height: 14),
+                        Expanded(child: _buildItems(context)),
+                      ],
+                    ),
+                  ),
+                ),
               ),
             ),
-          ),
+          ],
         ),
       ),
     );
@@ -82,35 +95,62 @@ class _HomeState extends State<Home> {
 
   Widget _buildIntro() {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 20),
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
       decoration: const BoxDecoration(
+        color: Color(0xFF101317),
         border: Border(bottom: BorderSide(color: Color(0xFF2A2F36))),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'What should Coach Jeremy do next?',
-            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w700,
-                ),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 1040),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final compact = constraints.maxWidth < 700;
+              final copy = Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Container(width: 38, height: 4, color: const Color(0xFFCC3333)),
+                      const SizedBox(width: 10),
+                      const Text(
+                        'YOU MAKE THE CALL',
+                        style: TextStyle(color: Color(0xFFE55353), fontSize: 14, fontWeight: FontWeight.w600),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 14),
+                  Text(
+                    'WHAT SHOULD COACH\nJEREMY DO NEXT?',
+                    style: Theme.of(context).textTheme.headlineLarge?.copyWith(fontSize: compact ? 40 : 52),
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    'Vote for the work that matters most. The strongest ideas move to the front of the lineup.',
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: const Color(0xFFADB5C0), height: 1.35),
+                  ),
+                ],
+              );
+              final action = FilledButton.icon(
+                onPressed: _showRequestMenu,
+                icon: const Icon(Icons.add_circle_outline),
+                label: const Text('CALL THE NEXT SHIFT'),
+              );
+
+              if (compact) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [copy, const SizedBox(height: 22), action],
+                );
+              }
+              return Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [Expanded(child: copy), const SizedBox(width: 40), action],
+              );
+            },
           ),
-          const SizedBox(height: 8),
-          Text(
-            'Vote on the ideas that matter most, request new hockey content, or report an issue with one of our products.',
-            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  color: const Color(0xFFADB5C0),
-                  height: 1.45,
-                ),
-          ),
-          const SizedBox(height: 18),
-          FilledButton.icon(
-            onPressed: _showRequestMenu,
-            icon: const Icon(Icons.add),
-            label: const Text('Suggest the next shift'),
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -123,11 +163,15 @@ class _HomeState extends State<Home> {
       children: [
         LayoutBuilder(
           builder: (context, constraints) {
-            final heading = Text(
-              showCompleted ? 'Completed shifts' : 'Community priorities',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.w700,
-                  ),
+            final heading = Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('THE LINEUP', style: TextStyle(color: Color(0xFFCC3333), fontSize: 13, fontWeight: FontWeight.w600)),
+                Text(
+                  showCompleted ? 'Completed shifts' : 'Ranked by the community',
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+              ],
             );
             final statusControl = SegmentedButton<bool>(
               segments: const [
@@ -156,12 +200,21 @@ class _HomeState extends State<Home> {
           runSpacing: 8,
           children: [
             ChoiceChip(
-              label: const Text('All products'),
+              avatar: const Icon(Icons.apps, size: 17),
+              label: const Text('All'),
               selected: platformFilter == null,
               onSelected: (_) => setState(() => platformFilter = null),
             ),
             ...platforms.map(
               (platform) => ChoiceChip(
+                avatar: Icon(
+                  platform == 'The Pond'
+                      ? Icons.water
+                      : platform == 'How To Hockey'
+                          ? Icons.sports_hockey
+                          : Icons.track_changes,
+                  size: 17,
+                ),
                 label: Text(platform),
                 selected: platformFilter == platform,
                 onSelected: (_) => setState(() => platformFilter = platform),
@@ -221,7 +274,11 @@ class _HomeState extends State<Home> {
             padding: const EdgeInsets.only(bottom: 96),
             itemCount: items.length,
             separatorBuilder: (_, __) => const SizedBox(height: 10),
-            itemBuilder: (_, index) => items[index],
+            itemBuilder: (_, index) => ListItem(
+              item: items[index].item,
+              filterBy: filterBy,
+              rank: index + 1,
+            ),
           )
         : Center(
             child: Column(
