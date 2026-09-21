@@ -144,8 +144,12 @@ class _RequestDetailState extends State<RequestDetail> {
 
                       return Card(
                         margin: EdgeInsets.all(10),
-                        color: Colors.white,
-                        elevation: 3,
+                        color: Theme.of(context).colorScheme.surface,
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(6),
+                          side: const BorderSide(color: Color(0xFF292E35)),
+                        ),
                         child: Container(
                           padding: EdgeInsets.all(15),
                           child: Row(
@@ -222,7 +226,7 @@ class _RequestDetailState extends State<RequestDetail> {
                                     Text(
                                       votesTitle,
                                       style: TextStyle(
-                                        color: Colors.black38,
+                                        color: Color(0xFF8A94A3),
                                         fontWeight: FontWeight.w500,
                                         fontSize: 12,
                                       ),
@@ -243,7 +247,7 @@ class _RequestDetailState extends State<RequestDetail> {
                                           textAlign: TextAlign.left,
                                           style: TextStyle(
                                             fontSize: 20,
-                                            color: Colors.black87,
+                                            color: Colors.white,
                                             fontWeight: FontWeight.w500,
                                           ),
                                         ),

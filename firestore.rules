@@ -1,9 +1,55 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /{document=**} {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return signedIn() &&
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+
+    function validCommentText(text) {
+      return text is string &&
+        text.size() > 0 &&
+        text.size() <= 500 &&
+        !text.matches('(?s).*[hH][tT][tT][pP][sS]?://.*') &&
+        !text.matches('(?s).*[wW][wW][wW][.].*') &&
+        !text.matches('(?s).*[.](com|net|org|io|co|app|dev|gg|me|tv|ly|ca|uk|us)(/|\\s|$).*') &&
+        !text.matches('(?s).*[<>].*') &&
+        !text.matches('(?s).*data:[iI][mM][aA][gG][eE].*');
+    }
+
+    match /comments/{requestId}/comments/{commentId} {
       allow read: if true;
-      allow write: if request.auth != null;
+      allow create: if signedIn() &&
+        request.resource.data.keys().hasOnly([
+          'displayName', 'comment', 'timestamp', 'avatarUrl', 'userId'
+        ]) &&
+        request.resource.data.userId == request.auth.uid &&
+        request.resource.data.displayName is string &&
+        request.resource.data.displayName.size() <= 100 &&
+        request.resource.data.timestamp is timestamp &&
+        (request.resource.data.avatarUrl == null ||
+          request.resource.data.avatarUrl is string) &&
+        validCommentText(request.resource.data.comment);
+      allow update: if signedIn() &&
+        (resource.data.userId == request.auth.uid || isAdmin()) &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['comment']) &&
+        validCommentText(request.resource.data.comment);
+      allow delete: if signedIn() &&
+        (resource.data.userId == request.auth.uid || isAdmin());
+    }
+
+    match /items/{itemId} {
+      allow read: if true;
+      allow write: if signedIn();
+    }
+
+    match /admins/{userId} {
+      allow read: if signedIn();
+      allow write: if false;
     }
   }
 }

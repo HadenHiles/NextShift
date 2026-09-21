@@ -12,37 +12,47 @@ class PlatformBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final child = switch (platform) {
-      'The Pond' => Image.asset(
-          'assets/images/logos/thepond_rgb.png',
-          height: 30,
-        ),
-      'How To Hockey' => Image.asset(
-          'assets/images/logos/hth_logo.png',
-          height: 35,
-        ),
-      '10,000 Shots App' => const Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.sports_hockey, size: 24),
-            Text('10K Shots', style: TextStyle(fontSize: 11)),
-          ],
-        ),
-      _ => Text(platform, textAlign: TextAlign.center),
+    final (icon, label) = switch (platform) {
+      'The Pond' => (Icons.water, 'THE POND'),
+      'How To Hockey' => (Icons.sports_hockey, 'HOW TO HOCKEY'),
+      '10,000 Shots App' => (Icons.track_changes, '10K SHOTS'),
+      _ => (Icons.apps, platform.toUpperCase()),
     };
+
+    final child = Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Icon(icon, size: 14, color: const Color(0xFFADB5C0)),
+        const SizedBox(width: 5),
+        Flexible(
+          child: Text(
+            label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              color: Color(0xFFDDE1E7),
+              fontSize: 9,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ),
+      ],
+    );
 
     return Tooltip(
       message: platform,
       child: SizedBox(
-        width: 82,
-        height: 56,
-        child: onTap == null
-            ? Center(child: child)
-            : InkWell(
-                borderRadius: BorderRadius.circular(4),
-                onTap: onTap,
-                child: Center(child: child),
-              ),
+        width: 112,
+        height: 32,
+        child: Material(
+          color: const Color(0xFF20242A),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(4),
+            side: const BorderSide(color: Color(0xFF343A43)),
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: onTap == null ? Center(child: child) : InkWell(onTap: onTap, child: Center(child: child)),
+        ),
       ),
     );
   }

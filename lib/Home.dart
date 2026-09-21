@@ -1,12 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:nextshift/Request.dart';
 import 'package:nextshift/models/RequestType.dart';
 import 'models/Item.dart';
 import 'widgets/ListItem.dart';
-import 'widgets/Heading.dart';
 import 'Login.dart';
 
 class Home extends StatefulWidget {
@@ -16,226 +14,170 @@ class Home extends StatefulWidget {
   _HomeState createState() => _HomeState();
 }
 
-class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
-  // Static variables
+class _HomeState extends State<Home> {
   final user = FirebaseAuth.instance.currentUser;
 
-  // State variables
-  bool speedDialOpen = false;
-  bool initialized = false;
   RequestType? typeFilter;
   String? platformFilter;
   bool showCompleted = false;
 
   @override
-  void initState() {
-    setState(() {
-      initialized = true;
-    });
-
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return _buildMobile();
-  }
-
-  Widget _buildMobile() {
     return Scaffold(
-      backgroundColor: Color.fromRGBO(240, 240, 240, 1),
       appBar: AppBar(
-        centerTitle: true,
-        leading: Container(
-          padding: EdgeInsets.all(5),
-          child: Image(
-            height: 40,
-            image: AssetImage(
+        toolbarHeight: 68,
+        titleSpacing: 20,
+        title: Row(
+          children: [
+            Image.asset(
               'assets/images/logos/hth_logo_red.png',
+              height: 36,
             ),
-          ),
-        ),
-        title: Heading(
-          text: "Next Shift",
-          size: 30,
+            const SizedBox(width: 12),
+            const Text(
+              'NEXT SHIFT',
+              style: TextStyle(
+                fontFamily: 'Teko',
+                fontSize: 28,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
         ),
         actions: [
-          Container(
-            padding: EdgeInsets.all(10),
-            child: Image(
-              height: 30,
-              image: AssetImage(
-                'assets/images/logos/thepond_white_rgb.png',
+          IconButton(
+            tooltip: user == null ? 'Sign in' : 'Account',
+            onPressed: user == null
+                ? () => Navigator.of(context).push(
+                      MaterialPageRoute(builder: (_) => const Login()),
+                    )
+                : null,
+            icon: Icon(user == null ? Icons.login : Icons.account_circle),
+          ),
+          const SizedBox(width: 8),
+        ],
+      ),
+      body: SafeArea(
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 920),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  _buildIntro(),
+                  const SizedBox(height: 24),
+                  _buildFilters(),
+                  const SizedBox(height: 14),
+                  Expanded(child: _buildItems(context)),
+                ],
               ),
             ),
           ),
-        ],
+        ),
       ),
-      body: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
+    );
+  }
+
+  Widget _buildIntro() {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 20),
+      decoration: const BoxDecoration(
+        border: Border(bottom: BorderSide(color: Color(0xFF2A2F36))),
+      ),
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.max,
         children: [
-          Container(
-            margin: EdgeInsets.only(top: 15),
-            width: MediaQuery.of(context).size.width,
-            constraints: BoxConstraints(maxWidth: 700),
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    ClipOval(
-                      child: Container(
-                        padding: EdgeInsets.all(0.0),
-                        margin: EdgeInsets.symmetric(horizontal: 15),
-                        color: Colors.transparent,
-                        child: IconButton(
-                          alignment: Alignment.center,
-                          tooltip: "View Completed",
-                          hoverColor: Colors.transparent,
-                          focusColor: Colors.transparent,
-                          onPressed: () {
-                            setState(() {
-                              showCompleted = !showCompleted;
-                            });
-                          },
-                          icon: Icon(
-                            Icons.history,
-                            color: showCompleted ? Colors.green : Colors.black54,
-                            size: 24,
-                          ),
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      child: Wrap(
-                        direction: Axis.horizontal,
-                        alignment: WrapAlignment.end,
-                        children: [
-                          typeFilter != null || platformFilter != null
-                              ? Container(
-                                  margin: EdgeInsets.symmetric(vertical: 6, horizontal: 10),
-                                  child: Icon(
-                                    Icons.filter_list,
-                                    size: 14,
-                                    color: Colors.black45,
-                                  ),
-                                )
-                              : Column(),
-                          typeFilter != null
-                              ? Container(
-                                  margin: EdgeInsets.only(right: 10, bottom: 5),
-                                  padding: EdgeInsets.only(left: 10),
-                                  height: 30,
-                                  decoration: BoxDecoration(
-                                    color: Colors.black12,
-                                    borderRadius: BorderRadius.all(Radius.circular(5)),
-                                  ),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.end,
-                                    crossAxisAlignment: CrossAxisAlignment.center,
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Row(
-                                        mainAxisAlignment: MainAxisAlignment.end,
-                                        crossAxisAlignment: CrossAxisAlignment.center,
-                                        children: [
-                                          Text(
-                                            typeFilter!.descriptor,
-                                            style: TextStyle(
-                                              color: Colors.black54,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      ClipOval(
-                                        child: Container(
-                                          color: Colors.transparent,
-                                          child: IconButton(
-                                            tooltip: "Remove filter",
-                                            hoverColor: Colors.transparent,
-                                            focusColor: Colors.transparent,
-                                            onPressed: () {
-                                              setState(() {
-                                                typeFilter = null;
-                                              });
-                                            },
-                                            icon: Icon(
-                                              Icons.close,
-                                              color: Theme.of(context).colorScheme.secondary,
-                                              size: 15,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                )
-                              : const SizedBox.shrink(),
-                          platformFilter != null
-                              ? Container(
-                                  margin: EdgeInsets.only(right: 10, bottom: 5),
-                                  padding: EdgeInsets.only(left: 10),
-                                  height: 30,
-                                  decoration: BoxDecoration(
-                                    color: Colors.black12,
-                                    borderRadius: BorderRadius.all(Radius.circular(5)),
-                                  ),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.end,
-                                    crossAxisAlignment: CrossAxisAlignment.center,
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Row(
-                                        mainAxisAlignment: MainAxisAlignment.end,
-                                        crossAxisAlignment: CrossAxisAlignment.center,
-                                        children: [
-                                          Text(
-                                            platformFilter!,
-                                            style: TextStyle(
-                                              color: Colors.black54,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      ClipOval(
-                                        child: Container(
-                                          color: Colors.transparent,
-                                          child: IconButton(
-                                            tooltip: "Remove filter",
-                                            hoverColor: Colors.transparent,
-                                            focusColor: Colors.transparent,
-                                            onPressed: () {
-                                              setState(() {
-                                                platformFilter = null;
-                                              });
-                                            },
-                                            icon: Icon(
-                                              Icons.close,
-                                              color: Theme.of(context).colorScheme.secondary,
-                                              size: 15,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                )
-                              : const SizedBox.shrink(),
-                        ],
-                      ),
-                    ),
-                  ],
+          Text(
+            'What should Coach Jeremy do next?',
+            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w700,
                 ),
-                _buildItems(context)
-              ],
-            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Vote on the ideas that matter most, request new hockey content, or report an issue with one of our products.',
+            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                  color: const Color(0xFFADB5C0),
+                  height: 1.45,
+                ),
+          ),
+          const SizedBox(height: 18),
+          FilledButton.icon(
+            onPressed: _showRequestMenu,
+            icon: const Icon(Icons.add),
+            label: const Text('Suggest the next shift'),
           ),
         ],
       ),
-      floatingActionButton: initialized ? _buildSpeedDial() : null,
+    );
+  }
+
+  Widget _buildFilters() {
+    const platforms = ['The Pond', 'How To Hockey', '10,000 Shots App'];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final heading = Text(
+              showCompleted ? 'Completed shifts' : 'Community priorities',
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
+            );
+            final statusControl = SegmentedButton<bool>(
+              segments: const [
+                ButtonSegment(value: false, label: Text('Open')),
+                ButtonSegment(value: true, label: Text('Done')),
+              ],
+              selected: {showCompleted},
+              onSelectionChanged: (value) => setState(() => showCompleted = value.first),
+            );
+
+            if (constraints.maxWidth < 520) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [heading, const SizedBox(height: 12), statusControl],
+              );
+            }
+
+            return Row(
+              children: [Expanded(child: heading), statusControl],
+            );
+          },
+        ),
+        const SizedBox(height: 14),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            ChoiceChip(
+              label: const Text('All products'),
+              selected: platformFilter == null,
+              onSelected: (_) => setState(() => platformFilter = null),
+            ),
+            ...platforms.map(
+              (platform) => ChoiceChip(
+                label: Text(platform),
+                selected: platformFilter == platform,
+                onSelected: (_) => setState(() => platformFilter = platform),
+              ),
+            ),
+          ],
+        ),
+        if (typeFilter != null) ...[
+          const SizedBox(height: 10),
+          InputChip(
+            avatar: Icon(typeFilter!.icon, size: 18),
+            label: Text(typeFilter!.descriptor),
+            onDeleted: () => setState(() => typeFilter = null),
+          ),
+        ],
+      ],
     );
   }
 
@@ -244,7 +186,10 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
     return StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance.collection('items').orderBy('votes', descending: true).snapshots(),
         builder: (context, snapshot) {
-          if (!snapshot.hasData) return LinearProgressIndicator();
+          if (snapshot.hasError) {
+            return const Center(child: Text('We could not load community ideas right now.'));
+          }
+          if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
 
           return _buildItemList(context, snapshot.data!.docs);
         });
@@ -271,129 +216,73 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
       items = items.where((element) => element.item.platform == platformFilter).toList();
     }
 
-    return items.length > 0
-        ? Expanded(
-            child: ListView(
-              padding: EdgeInsets.only(top: 20.0),
-              children: items,
-            ),
+    return items.isNotEmpty
+        ? ListView.separated(
+            padding: const EdgeInsets.only(bottom: 96),
+            itemCount: items.length,
+            separatorBuilder: (_, __) => const SizedBox(height: 10),
+            itemBuilder: (_, index) => items[index],
           )
-        : Container(
-            constraints: BoxConstraints(
-              minHeight: MediaQuery.of(context).size.height - 160,
-            ),
+        : Center(
             child: Column(
+              mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
+                const Icon(Icons.search_off, size: 38, color: Color(0xFF737C89)),
+                const SizedBox(height: 12),
                 Text(
-                  "There are no items to display",
-                  style: TextStyle(
-                    fontSize: 16,
-                  ),
+                  'No matching shifts',
+                  style: Theme.of(context).textTheme.titleMedium,
                 ),
-                (showCompleted || typeFilter != null || platformFilter != null)
-                    ? Container(
-                        margin: EdgeInsets.only(top: 15),
-                        child: TextButton(
-                          style: TextButton.styleFrom(padding: EdgeInsets.all(20)),
-                          onPressed: () => setState(() {
-                            showCompleted = false;
-                            typeFilter = null;
-                            platformFilter = null;
-                          }),
-                          child: Text("Clear Filters"),
-                        ),
-                      )
-                    : Container(),
+                const SizedBox(height: 6),
+                const Text('Try another product or clear your filters.'),
+                TextButton(
+                  onPressed: () => setState(() {
+                    showCompleted = false;
+                    typeFilter = null;
+                    platformFilter = null;
+                  }),
+                  child: const Text('Clear filters'),
+                ),
               ],
             ),
           );
   }
 
-  SpeedDial _buildSpeedDial() {
-    return SpeedDial(
-      backgroundColor: !speedDialOpen ? Theme.of(context).colorScheme.secondary : Theme.of(context).primaryColor,
-      child: !speedDialOpen
-          ? Icon(Icons.add)
-          : Icon(
-              Icons.arrow_drop_down,
-              size: 34,
-            ),
-      onOpen: () {
-        setState(() {
-          speedDialOpen = !speedDialOpen;
-        });
-      },
-      onClose: () {
-        setState(() {
-          speedDialOpen = !speedDialOpen;
-        });
-      },
-      visible: true,
-      curve: Curves.easeInOut,
-      children: [
-        SpeedDialChild(
-          child: Icon(Icons.bug_report, color: Colors.white),
-          backgroundColor: Theme.of(context).colorScheme.secondary,
-          foregroundColor: Theme.of(context).colorScheme.secondary,
-          onTap: () {
-            newRequest("Bug");
-          },
-          label: 'Report a bug',
-          labelStyle: TextStyle(
-            fontWeight: FontWeight.w500,
-            color: Colors.black54,
-            fontSize: 18,
+  Future<void> _showRequestMenu() async {
+    final selection = await showModalBottomSheet<String>(
+      context: context,
+      showDragHandle: true,
+      builder: (context) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text('What should the next shift be?', style: Theme.of(context).textTheme.titleLarge),
+              const SizedBox(height: 12),
+              _requestOption('Content Request', Icons.movie, 'Suggest a video, drill, or lesson'),
+              _requestOption('Feature Request', Icons.list_alt, 'Improve one of our products'),
+              _requestOption('Idea', Icons.lightbulb, 'Share another way we can help'),
+              _requestOption('Bug', Icons.bug_report, 'Report something that is broken'),
+            ],
           ),
-          labelBackgroundColor: Colors.white,
         ),
-        SpeedDialChild(
-          child: Icon(Icons.lightbulb, color: Colors.white),
-          backgroundColor: Colors.orange,
-          foregroundColor: Colors.orange,
-          onTap: () {
-            newRequest("Idea");
-          },
-          label: 'I have an idea',
-          labelStyle: TextStyle(
-            fontWeight: FontWeight.w500,
-            color: Colors.black54,
-            fontSize: 18,
-          ),
-          labelBackgroundColor: Colors.white,
-        ),
-        SpeedDialChild(
-          child: Icon(Icons.movie, color: Colors.white),
-          backgroundColor: Colors.green,
-          foregroundColor: Colors.green,
-          onTap: () {
-            newRequest("Content Request");
-          },
-          label: 'I would like to learn more about..',
-          labelStyle: TextStyle(
-            fontWeight: FontWeight.w500,
-            color: Colors.black54,
-            fontSize: 18,
-          ),
-          labelBackgroundColor: Colors.white,
-        ),
-        SpeedDialChild(
-          child: Icon(Icons.list_alt, color: Colors.white),
-          backgroundColor: Colors.blue,
-          foregroundColor: Colors.blue,
-          onTap: () {
-            newRequest("Feature Request");
-          },
-          label: 'I would like to be able to..',
-          labelStyle: TextStyle(
-            fontWeight: FontWeight.w500,
-            color: Colors.black54,
-            fontSize: 18,
-          ),
-          labelBackgroundColor: Colors.white,
-        ),
-      ],
+      ),
+    );
+
+    if (selection != null && mounted) newRequest(selection);
+  }
+
+  Widget _requestOption(String type, IconData icon, String subtitle) {
+    return ListTile(
+      contentPadding: EdgeInsets.zero,
+      leading: Icon(icon),
+      title: Text(type),
+      subtitle: Text(subtitle),
+      trailing: const Icon(Icons.chevron_right),
+      onTap: () => Navigator.of(context).pop(type),
     );
   }
 

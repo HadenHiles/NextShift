@@ -8,14 +8,20 @@ class Comment {
   final Timestamp timestamp;
   final DocumentReference? reference;
 
-  Comment({required this.displayName, required this.userId, this.avatarUrl, required this.comment, required this.timestamp, this.reference});
+  Comment({
+    required this.displayName,
+    required this.userId,
+    this.avatarUrl,
+    required this.comment,
+    required this.timestamp,
+    this.reference,
+  });
 
   Comment.fromMap(Map<String, dynamic> map, {this.reference})
       : assert(map['displayName'] != null),
         assert(map['userId'] != null),
         assert(map['comment'] != null),
         assert(map['timestamp'] != null),
-        assert(map['avatarUrl'] != null),
         displayName = map['displayName'],
         userId = map['userId'],
         comment = map['comment'],

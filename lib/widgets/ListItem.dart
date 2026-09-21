@@ -19,262 +19,172 @@ class ListItem extends StatefulWidget {
 }
 
 class _ListItemState extends State<ListItem> {
-  final user = FirebaseAuth.instance.currentUser;
-
-  bool isAdmin = false;
-
-  @override
-  void initState() {
-    isAdmin = Roles.admins.contains(FirebaseAuth.instance.currentUser?.uid);
-
-    super.initState();
-  }
+  User? get user => FirebaseAuth.instance.currentUser;
+  bool get isAdmin => Roles.admins.contains(user?.uid);
 
   @override
   Widget build(BuildContext context) {
     final hasVoted = user != null ? widget.item.voters.contains(user!.uid) : false;
-    final votesTitle = widget.item.votes > 1 ? "Votes" : "Vote";
+    final status = widget.item.complete
+        ? ('Completed', const Color(0xFF45B978), Icons.check_circle)
+        : widget.item.upNext
+            ? ("Coach's next shift", const Color(0xFFE55353), Icons.bolt)
+            : ('Open', const Color(0xFF8A94A3), Icons.radio_button_unchecked);
 
-    return Stack(
-      children: [
-        Container(
-          child: Card(
-            margin: EdgeInsets.only(
-              top: 4.0,
-              right: 16.0,
-              bottom: 4.0,
-              left: 16.0,
-            ),
-            color: Colors.white,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(5),
-            ),
-            elevation: 3.0,
-            child: Padding(
-              padding: EdgeInsets.only(top: 2, bottom: 2, right: 2, left: 0),
-              child: ListTile(
-                title: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.max,
+    return Card(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(6),
+        side: const BorderSide(color: Color(0xFF292E35)),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: _openDetails,
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(
+                width: 48,
+                child: Column(
                   children: [
-                    Container(
-                      margin: EdgeInsets.only(right: 20),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          isAdmin
-                              ? Transform.scale(
-                                  scale: 0.7,
-                                  child: IconButton(
-                                    icon: Icon(
-                                      Icons.check,
-                                      color: widget.item.complete ? Colors.green : Colors.black54,
-                                    ),
-                                    onPressed: () async {
-                                      await FirebaseFirestore.instance.runTransaction(
-                                        (transaction) async {
-                                          final freshSnapshot = await transaction.get(widget.item.reference);
-                                          final fresh = Item.fromSnapshot(freshSnapshot);
-
-                                          transaction.update(widget.item.reference, {
-                                            'complete': !fresh.complete,
-                                          });
-                                        },
-                                      );
-                                    },
-                                  ),
-                                )
-                              : Transform.scale(
-                                  scale: 0.7,
-                                  child: IconButton(
-                                    icon: Icon(
-                                      Icons.thumb_up,
-                                      color: hasVoted ? Theme.of(context).colorScheme.secondary : Colors.grey,
-                                    ),
-                                    onPressed: hasVoted
-                                        ? () async {
-                                            await FirebaseFirestore.instance.runTransaction(
-                                              (transaction) async {
-                                                final freshSnapshot = await transaction.get(widget.item.reference);
-                                                final fresh = Item.fromSnapshot(freshSnapshot);
-
-                                                if (fresh.voters.contains(user!.uid)) {
-                                                  fresh.voters.remove(user!.uid);
-                                                }
-
-                                                transaction.update(widget.item.reference, {
-                                                  'votes': fresh.votes - 1,
-                                                  'voters': fresh.voters,
-                                                });
-                                              },
-                                            );
-                                          }
-                                        : () async {
-                                            if (user == null) {
-                                              Navigator.of(context).push(MaterialPageRoute(builder: (context) {
-                                                return Login();
-                                              }));
-                                            } else {
-                                              await FirebaseFirestore.instance.runTransaction(
-                                                (transaction) async {
-                                                  final freshSnapshot = await transaction.get(widget.item.reference);
-                                                  final fresh = Item.fromSnapshot(freshSnapshot);
-
-                                                  if (!fresh.voters.contains(user!.uid)) {
-                                                    fresh.voters.add(user!.uid);
-                                                  }
-
-                                                  transaction.update(widget.item.reference, {
-                                                    'votes': fresh.votes + 1,
-                                                    'voters': fresh.voters,
-                                                  });
-                                                },
-                                              );
-                                            }
-                                          },
-                                  ),
-                                ),
-                          Text(
-                            widget.item.votes.toString(),
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          Text(
-                            votesTitle,
-                            style: TextStyle(
-                              color: Colors.black38,
-                              fontWeight: FontWeight.w500,
-                              fontSize: 12,
-                            ),
-                          )
-                        ],
+                    IconButton(
+                      tooltip: hasVoted ? 'Remove vote' : 'Vote for this',
+                      onPressed: _toggleVote,
+                      icon: Icon(
+                        hasVoted ? Icons.thumb_up : Icons.thumb_up_outlined,
+                        color: hasVoted ? Theme.of(context).colorScheme.secondary : const Color(0xFF9AA3AF),
                       ),
                     ),
-                    Expanded(
-                      child: Container(
-                        padding: new EdgeInsets.only(right: 10),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              widget.item.name,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                color: Colors.black87,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+                    Text(
+                      '${widget.item.votes}',
+                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
                     ),
-                    Container(
-                      margin: EdgeInsets.only(left: 12),
-                      child: PlatformBadge(
-                        platform: widget.item.platform,
-                        onTap: () => widget.filterBy(null, widget.item.platform),
-                      ),
-                    ),
+                    const Text('votes', style: TextStyle(fontSize: 11, color: Color(0xFF8A94A3))),
                   ],
                 ),
-                trailing: Column(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    ClipOval(
-                      child: Container(
-                        color: widget.item.type.color,
-                        child: IconButton(
-                          iconSize: 30,
-                          tooltip: widget.item.type.descriptor,
-                          hoverColor: Colors.transparent,
-                          focusColor: Colors.transparent,
-                          onPressed: () {
-                            widget.filterBy(widget.item.type, null);
-                          },
-                          icon: Icon(
-                            widget.item.type.icon,
-                            color: Colors.white,
-                            size: 20,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                onTap: () {
-                  Navigator.of(context).push(MaterialPageRoute(builder: (context) {
-                    return RequestDetail(item: widget.item);
-                  }));
-                },
-                onLongPress: !isAdmin
-                    ? () {
-                        Navigator.of(context).push(MaterialPageRoute(builder: (context) {
-                          return RequestDetail(item: widget.item);
-                        }));
-                      }
-                    : () => FirebaseFirestore.instance.runTransaction(
-                          (transaction) async {
-                            final freshSnapshot = await transaction.get(widget.item.reference);
-                            final fresh = Item.fromSnapshot(freshSnapshot);
-
-                            transaction.update(widget.item.reference, {'up_next': !fresh.upNext});
-                          },
-                        ),
               ),
-            ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            widget.item.name,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600, height: 1.25),
+                          ),
+                        ),
+                        if (isAdmin)
+                          PopupMenuButton<String>(
+                            tooltip: 'Manage request',
+                            onSelected: (action) => action == 'status' ? _toggleComplete() : _toggleUpNext(),
+                            itemBuilder: (_) => [
+                              PopupMenuItem(value: 'next', child: Text(widget.item.upNext ? 'Remove from next shift' : 'Mark as next shift')),
+                              PopupMenuItem(value: 'status', child: Text(widget.item.complete ? 'Reopen request' : 'Mark completed')),
+                            ],
+                          ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    Wrap(
+                      spacing: 10,
+                      runSpacing: 10,
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      children: [
+                        _StatusBadge(label: status.$1, color: status.$2, icon: status.$3),
+                        ActionChip(
+                          avatar: Icon(widget.item.type.icon, size: 17, color: widget.item.type.color),
+                          label: Text(widget.item.type.name),
+                          onPressed: () => widget.filterBy(widget.item.type, null),
+                        ),
+                        PlatformBadge(
+                          platform: widget.item.platform,
+                          onTap: () => widget.filterBy(null, widget.item.platform),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 4),
+              const Padding(
+                padding: EdgeInsets.only(top: 2),
+                child: Icon(Icons.chevron_right, color: Color(0xFF737C89)),
+              ),
+            ],
           ),
         ),
-        Positioned(
-          top: -10,
-          left: -4,
-          child: widget.item.upNext
-              ? IconButton(
-                  tooltip: "We're working on this",
-                  splashRadius: 20,
-                  iconSize: 18,
-                  icon: Icon(
-                    Icons.build,
-                    color: widget.item.upNext ? Theme.of(context).colorScheme.secondary : Colors.grey,
-                  ),
-                  onPressed: !isAdmin
-                      ? () {
-                          Navigator.of(context).push(MaterialPageRoute(builder: (context) {
-                            return RequestDetail(item: widget.item);
-                          }));
-                        }
-                      : () => FirebaseFirestore.instance.runTransaction(
-                            (transaction) async {
-                              final freshSnapshot = await transaction.get(widget.item.reference);
-                              final fresh = Item.fromSnapshot(freshSnapshot);
+      ),
+    );
+  }
 
-                              transaction.update(widget.item.reference, {'up_next': !fresh.upNext});
-                            },
-                          ),
-                )
-              : isAdmin
-                  ? IconButton(
-                      splashRadius: 20,
-                      iconSize: 18,
-                      icon: Icon(
-                        Icons.build,
-                        color: Colors.grey,
-                      ),
-                      onPressed: () => FirebaseFirestore.instance.runTransaction(
-                        (transaction) async {
-                          final freshSnapshot = await transaction.get(widget.item.reference);
-                          final fresh = Item.fromSnapshot(freshSnapshot);
+  void _openDetails() {
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => RequestDetail(item: widget.item)),
+    );
+  }
 
-                          transaction.update(widget.item.reference, {'up_next': !fresh.upNext});
-                        },
-                      ),
-                    )
-                  : Container(),
-        ),
-      ],
+  Future<void> _toggleVote() async {
+    final currentUser = user;
+    if (currentUser == null) {
+      await Navigator.of(context).push(MaterialPageRoute(builder: (_) => const Login()));
+      return;
+    }
+
+    await FirebaseFirestore.instance.runTransaction((transaction) async {
+      final snapshot = await transaction.get(widget.item.reference);
+      final fresh = Item.fromSnapshot(snapshot);
+      final voters = List<dynamic>.from(fresh.voters);
+      final hasVoted = voters.remove(currentUser.uid);
+      if (!hasVoted) voters.add(currentUser.uid);
+
+      transaction.update(widget.item.reference, {
+        'votes': fresh.votes + (hasVoted ? -1 : 1),
+        'voters': voters,
+      });
+    });
+  }
+
+  Future<void> _toggleComplete() => _updateFlag('complete', !widget.item.complete);
+
+  Future<void> _toggleUpNext() => _updateFlag('up_next', !widget.item.upNext);
+
+  Future<void> _updateFlag(String field, bool value) {
+    return widget.item.reference.update({field: value});
+  }
+}
+
+class _StatusBadge extends StatelessWidget {
+  const _StatusBadge({required this.label, required this.color, required this.icon});
+
+  final String label;
+  final Color color;
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 32,
+      padding: const EdgeInsets.symmetric(horizontal: 10),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(4),
+        border: Border.all(color: color.withValues(alpha: 0.45)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 14, color: color),
+          const SizedBox(width: 6),
+          Text(label, style: TextStyle(color: color, fontSize: 12, fontWeight: FontWeight.w600)),
+        ],
+      ),
     );
   }
 }

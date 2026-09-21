@@ -10,9 +10,11 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:nextshift/widgets/Heading.dart';
 import 'package:nextshift/widgets/PlatformBadge.dart';
+import 'package:nextshift/services/comment_policy.dart';
 
 void main() {
-  testWidgets('Heading renders uppercase text at the requested size', (tester) async {
+  testWidgets('Heading renders uppercase text at the requested size',
+      (tester) async {
     await tester.pumpWidget(
       const MaterialApp(
         home: Heading(text: 'Next Shift', size: 30),
@@ -32,7 +34,22 @@ void main() {
       ),
     );
 
-    expect(find.text('10K Shots'), findsOneWidget);
-    expect(find.byIcon(Icons.sports_hockey), findsOneWidget);
+    expect(find.text('10K SHOTS'), findsOneWidget);
+    expect(find.byIcon(Icons.track_changes), findsOneWidget);
+  });
+
+  test('comment policy allows useful plain text', () {
+    expect(validateComment('Please add a video about backward crossovers.'),
+        isNull);
+  });
+
+  test('comment policy blocks links and embedded content', () {
+    expect(validateComment('Visit https://example.com'), contains('Links'));
+    expect(validateComment('<img src="bad">'), contains('HTML'));
+    expect(validateComment('![photo](image.png)'), contains('HTML'));
+  });
+
+  test('comment policy blocks harmful content', () {
+    expect(validateComment('kill yourself'), contains('community guidelines'));
   });
 }

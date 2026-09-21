@@ -142,14 +142,6 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
-  flutter_speed_dial:
-    dependency: "direct main"
-    description:
-      name: flutter_speed_dial
-      sha256: "698a037274a66dbae8697c265440e6acb6ab6cae9ac5f95c749e7944d8f28d41"
-      url: "https://pub.dev"
-    source: hosted
-    version: "7.0.0"
   flutter_test:
     dependency: "direct dev"
     description: flutter
@@ -280,6 +272,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.19.0"
+  mofilo_content_filter:
+    dependency: "direct main"
+    description:
+      name: mofilo_content_filter
+      sha256: "39f39e58183a712df596c86c7b7d9334ee9cd62f5eadb74e9bcc8fec07fa0afb"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.9"
   path:
     dependency: transitive
     description:
