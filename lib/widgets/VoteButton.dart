@@ -26,8 +26,8 @@ class VoteButton extends StatelessWidget {
       ),
       icon: Icon(
         isUpvote ? Icons.arrow_upward : Icons.arrow_downward,
-        size: 28,
-        color: selected ? selectedColor : const Color(0xFFB4BDC9),
+        size: 32,
+        color: selected ? selectedColor : Colors.white,
       ),
     );
   }

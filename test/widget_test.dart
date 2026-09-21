@@ -53,8 +53,14 @@ void main() {
               ),
               VoteButton(
                 isUpvote: false,
-                selected: true,
+                selected: false,
                 tooltip: 'Downvote',
+                onPressed: () {},
+              ),
+              VoteButton(
+                isUpvote: false,
+                selected: true,
+                tooltip: 'Remove downvote',
                 onPressed: () {},
               ),
             ],
@@ -64,11 +70,14 @@ void main() {
     );
 
     final upIcon = tester.widget<Icon>(find.byIcon(Icons.arrow_upward));
-    final downIcon = tester.widget<Icon>(find.byIcon(Icons.arrow_downward));
+    final downIcons = tester.widgetList<Icon>(find.byIcon(Icons.arrow_downward)).toList();
     final buttons = tester.widgetList<IconButton>(find.byType(IconButton)).toList();
 
-    expect(upIcon.color, const Color(0xFFB4BDC9));
-    expect(downIcon.color, const Color(0xFFFF7373));
+    expect(upIcon.color, Colors.white);
+    expect(upIcon.size, 32);
+    expect(downIcons[0].color, Colors.white);
+    expect(downIcons[1].color, const Color(0xFFFF7373));
+    expect(downIcons.every((icon) => icon.size == 32), isTrue);
     for (final button in buttons) {
       expect(button.style?.backgroundColor, isNull);
       expect(button.style?.side, isNull);
