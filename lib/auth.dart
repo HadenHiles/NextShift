@@ -27,9 +27,7 @@ Future<UserCredential> signInWithGoogle() async {
   );
 
   // Once signed in, return the UserCredential
-  return await FirebaseAuth.instance
-      .setPersistence(Persistence.SESSION)
-      .then((_) {
+  return await FirebaseAuth.instance.setPersistence(Persistence.SESSION).then((_) {
     return auth.signInWithCredential(credential);
   });
 }
@@ -90,15 +88,13 @@ Future<bool> hasMembership() async {
   final data = <String, dynamic>{'email': user.email};
 
   final http.Response response = await http.post(
-    Uri.parse(
-        'https://thepond.howtohockey.com/wp-content/themes/meltingpot-child/active-membership.php'),
+    Uri.parse('https://thepond.howtohockey.com/wp-content/themes/meltingpot-child/active-membership.php'),
     body: data,
   );
   if (response.statusCode == 200) {
     // If the server did return a 200 OK response,
     // then parse the JSON.
-    SubscriptionResponse subResponse =
-        SubscriptionResponse.fromJson(jsonDecode(response.body));
+    SubscriptionResponse subResponse = SubscriptionResponse.fromJson(jsonDecode(response.body));
     return subResponse.subscriptions.length > 0;
   } else {
     // If the server did not return a 200 OK response,
@@ -111,8 +107,7 @@ Future<bool> isAdmin() async {
   final user = auth.currentUser;
   if (user == null) return false;
 
-  final snapshot =
-      await FirebaseFirestore.instance.collection('admins').doc(user.uid).get();
+  final snapshot = await FirebaseFirestore.instance.collection('admins').doc(user.uid).get();
   return snapshot.exists;
 }
 
