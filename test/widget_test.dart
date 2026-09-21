@@ -10,6 +10,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:nextshift/widgets/Heading.dart';
 import 'package:nextshift/widgets/PlatformBadge.dart';
+import 'package:nextshift/widgets/VoteButton.dart';
 import 'package:nextshift/services/comment_policy.dart';
 import 'package:nextshift/services/voting.dart';
 
@@ -36,6 +37,42 @@ void main() {
 
     expect(find.text('10K SHOTS'), findsOneWidget);
     expect(find.byIcon(Icons.track_changes), findsOneWidget);
+  });
+
+  testWidgets('Vote buttons use plain icons and color only the selected vote', (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: Row(
+            children: [
+              VoteButton(
+                isUpvote: true,
+                selected: false,
+                tooltip: 'Upvote',
+                onPressed: () {},
+              ),
+              VoteButton(
+                isUpvote: false,
+                selected: true,
+                tooltip: 'Downvote',
+                onPressed: () {},
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+
+    final upIcon = tester.widget<Icon>(find.byIcon(Icons.arrow_upward));
+    final downIcon = tester.widget<Icon>(find.byIcon(Icons.arrow_downward));
+    final buttons = tester.widgetList<IconButton>(find.byType(IconButton)).toList();
+
+    expect(upIcon.color, const Color(0xFFB4BDC9));
+    expect(downIcon.color, const Color(0xFFFF7373));
+    for (final button in buttons) {
+      expect(button.style?.backgroundColor, isNull);
+      expect(button.style?.side, isNull);
+    }
   });
 
   test('comment policy allows useful plain text', () {
