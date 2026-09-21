@@ -175,7 +175,13 @@ class _TypeLabel extends StatelessWidget {
       children: [
         Icon(type.icon, size: 18, color: type.color),
         const SizedBox(width: 6),
-        Text(type.descriptor, style: const TextStyle(fontSize: 14)),
+        Flexible(
+          child: Text(
+            type.descriptor,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(fontSize: 14),
+          ),
+        ),
       ],
     );
   }

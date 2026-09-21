@@ -71,27 +71,21 @@ class _HomeState extends State<Home> {
         ],
       ),
       body: SafeArea(
-        child: Column(
-          children: [
-            _buildIntro(),
-            Expanded(
+        child: CustomScrollView(
+          slivers: [
+            SliverToBoxAdapter(child: _buildIntro()),
+            SliverToBoxAdapter(
               child: Center(
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 1040),
                   child: Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 24, 20, 0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        _buildFilters(),
-                        const SizedBox(height: 14),
-                        Expanded(child: _buildItems(context)),
-                      ],
-                    ),
+                    padding: const EdgeInsets.fromLTRB(20, 24, 20, 14),
+                    child: _buildFilters(),
                   ),
                 ),
               ),
             ),
+            _buildItems(context),
           ],
         ),
       ),
@@ -245,9 +239,17 @@ class _HomeState extends State<Home> {
         stream: FirebaseFirestore.instance.collection('items').orderBy('votes', descending: true).snapshots(),
         builder: (context, snapshot) {
           if (snapshot.hasError) {
-            return const Center(child: Text('We could not load community ideas right now.'));
+            return const SliverFillRemaining(
+              hasScrollBody: false,
+              child: Center(child: Text('We could not load community ideas right now.')),
+            );
           }
-          if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
+          if (!snapshot.hasData) {
+            return const SliverFillRemaining(
+              hasScrollBody: false,
+              child: Center(child: CircularProgressIndicator()),
+            );
+          }
 
           return _buildItemList(context, snapshot.data!.docs);
         });
@@ -274,21 +276,14 @@ class _HomeState extends State<Home> {
       items = items.where((element) => element.item.platform == platformFilter).toList();
     }
 
-    return items.isNotEmpty
-        ? ListView.separated(
-            padding: const EdgeInsets.only(bottom: 96),
-            itemCount: items.length,
-            separatorBuilder: (_, __) => const SizedBox(height: 10),
-            itemBuilder: (_, index) => ListItem(
-              item: items[index].item,
-              filterBy: filterBy,
-              rank: index + 1,
-            ),
-          )
-        : Center(
+    if (items.isEmpty) {
+      return SliverFillRemaining(
+        hasScrollBody: false,
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 24, 20, 96),
             child: Column(
               mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const Icon(Icons.search_off, size: 38, color: Color(0xFF737C89)),
                 const SizedBox(height: 12),
@@ -308,7 +303,32 @@ class _HomeState extends State<Home> {
                 ),
               ],
             ),
+          ),
+        ),
+      );
+    }
+
+    return SliverPadding(
+      padding: const EdgeInsets.fromLTRB(20, 0, 20, 96),
+      sliver: SliverList.builder(
+        itemCount: items.length * 2 - 1,
+        itemBuilder: (context, index) {
+          if (index.isOdd) return const SizedBox(height: 10);
+
+          final itemIndex = index ~/ 2;
+          return Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 1000),
+              child: ListItem(
+                item: items[itemIndex].item,
+                filterBy: filterBy,
+                rank: itemIndex + 1,
+              ),
+            ),
           );
+        },
+      ),
+    );
   }
 
   Future<void> _showRequestMenu() async {
