@@ -10,6 +10,7 @@ class Item {
   final String platform;
   final RequestType type;
   final String createdBy;
+  final Timestamp? createdAt;
   final bool upNext;
   final bool complete;
   final DocumentReference reference;
@@ -31,6 +32,7 @@ class Item {
         platform = map['platform'],
         type = RequestType(name: map['type']),
         createdBy = map['created_by'],
+        createdAt = map['created_at'] as Timestamp?,
         upNext = map['up_next'] != null ? map['up_next'] : false,
         complete = map['complete'] != null ? map['complete'] : false;
 

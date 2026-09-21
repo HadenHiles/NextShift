@@ -6,6 +6,7 @@ import 'package:nextshift/models/Item.dart';
 import 'package:nextshift/models/RequestType.dart';
 import 'package:nextshift/services/voting.dart';
 import 'package:nextshift/widgets/PlatformBadge.dart';
+import 'package:nextshift/widgets/VoteButton.dart';
 import '../Login.dart';
 
 class ListItem extends StatefulWidget {
@@ -113,19 +114,19 @@ class _ListItemState extends State<ListItem> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    IconButton(
+                    VoteButton(
+                      isUpvote: true,
+                      selected: hasVoted,
                       tooltip: hasVoted ? 'Remove upvote' : 'Upvote this next shift',
-                      color: hasVoted ? const Color(0xFF63D69A) : const Color(0xFFC7CED8),
                       onPressed: () => _vote(VoteDirection.up),
-                      icon: const Icon(Icons.keyboard_arrow_up, size: 30),
                     ),
                     Text('${widget.item.votes}', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600)),
                     const Text('SCORE', style: TextStyle(fontSize: 12, color: Color(0xFFB4BDC9), fontWeight: FontWeight.w600)),
-                    IconButton(
+                    VoteButton(
+                      isUpvote: false,
+                      selected: hasDownvoted,
                       tooltip: hasDownvoted ? 'Remove downvote' : 'Downvote this next shift',
-                      color: hasDownvoted ? const Color(0xFFFF7373) : const Color(0xFFC7CED8),
                       onPressed: () => _vote(VoteDirection.down),
-                      icon: const Icon(Icons.keyboard_arrow_down, size: 30),
                     ),
                   ],
                 ),

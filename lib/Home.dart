@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:nextshift/Account.dart';
 import 'package:nextshift/Request.dart';
 import 'package:nextshift/globals/Roles.dart';
 import 'package:nextshift/models/RequestType.dart';
@@ -61,7 +62,9 @@ class _HomeState extends State<Home> {
                 ? () => Navigator.of(context).push(
                       MaterialPageRoute(builder: (_) => const Login()),
                     )
-                : null,
+                : () => Navigator.of(context).push(
+                      MaterialPageRoute(builder: (_) => const AccountScreen()),
+                    ),
             icon: Icon(user == null ? Icons.login : Icons.account_circle),
           ),
           const SizedBox(width: 8),

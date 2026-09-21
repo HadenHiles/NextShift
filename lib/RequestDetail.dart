@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:nextshift/CommentScreen.dart';
 import 'package:nextshift/widgets/PlatformBadge.dart';
 import 'package:nextshift/services/voting.dart';
+import 'package:nextshift/widgets/VoteButton.dart';
 import 'Home.dart';
 import 'Login.dart';
 import 'Request.dart';
@@ -163,10 +164,10 @@ class _RequestDetailState extends State<RequestDetail> {
                                   mainAxisAlignment: MainAxisAlignment.start,
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
-                                    IconButton(
+                                    VoteButton(
+                                      isUpvote: true,
+                                      selected: hasVoted,
                                       tooltip: hasVoted ? 'Remove upvote' : 'Upvote',
-                                      icon: const Icon(Icons.keyboard_arrow_up, size: 32),
-                                      color: hasVoted ? const Color(0xFF63D69A) : const Color(0xFFC7CED8),
                                       onPressed: () => _vote(item, VoteDirection.up),
                                     ),
                                     Text(
@@ -183,10 +184,10 @@ class _RequestDetailState extends State<RequestDetail> {
                                         fontSize: 14,
                                       ),
                                     ),
-                                    IconButton(
+                                    VoteButton(
+                                      isUpvote: false,
+                                      selected: hasDownvoted,
                                       tooltip: hasDownvoted ? 'Remove downvote' : 'Downvote',
-                                      icon: const Icon(Icons.keyboard_arrow_down, size: 32),
-                                      color: hasDownvoted ? const Color(0xFFFF7373) : const Color(0xFFC7CED8),
                                       onPressed: () => _vote(item, VoteDirection.down),
                                     ),
                                   ],

@@ -182,6 +182,7 @@ class _RequestState extends State<Request> {
                     'platform': platform,
                     'type': requestType.name,
                     'created_by': currentUser.uid,
+                    'created_at': FieldValue.serverTimestamp(),
                     'up_next': false,
                     'complete': false,
                   });
