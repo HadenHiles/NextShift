@@ -73,14 +73,16 @@ void main() {
     final downIcons = tester.widgetList<Icon>(find.byIcon(Icons.arrow_downward)).toList();
     final buttons = tester.widgetList<IconButton>(find.byType(IconButton)).toList();
 
-    expect(upIcon.color, Colors.white);
     expect(upIcon.size, 32);
-    expect(downIcons[0].color, Colors.white);
-    expect(downIcons[1].color, const Color(0xFFFF7373));
     expect(downIcons.every((icon) => icon.size == 32), isTrue);
+    expect(buttons[0].style?.foregroundColor?.resolve({}), Colors.white);
+    expect(buttons[1].style?.foregroundColor?.resolve({}), Colors.white);
+    expect(buttons[1].style?.foregroundColor?.resolve({WidgetState.hovered}), Colors.white);
+    expect(buttons[2].style?.foregroundColor?.resolve({}), const Color(0xFFFF7373));
     for (final button in buttons) {
       expect(button.style?.backgroundColor, isNull);
       expect(button.style?.side, isNull);
+      expect(button.style?.overlayColor?.resolve({WidgetState.hovered}), Colors.transparent);
     }
   });
 

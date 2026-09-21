@@ -17,17 +17,19 @@ class VoteButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final selectedColor = isUpvote ? const Color(0xFF63D69A) : const Color(0xFFFF7373);
+    final iconColor = selected ? selectedColor : Colors.white;
 
     return IconButton(
       tooltip: tooltip,
       onPressed: onPressed,
-      style: IconButton.styleFrom(
-        minimumSize: const Size.square(44),
+      style: ButtonStyle(
+        minimumSize: const WidgetStatePropertyAll(Size.square(44)),
+        foregroundColor: WidgetStatePropertyAll(iconColor),
+        overlayColor: const WidgetStatePropertyAll(Colors.transparent),
       ),
       icon: Icon(
         isUpvote ? Icons.arrow_upward : Icons.arrow_downward,
         size: 32,
-        color: selected ? selectedColor : Colors.white,
       ),
     );
   }
