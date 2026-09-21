@@ -6,23 +6,49 @@ class RequestType {
   late Color color;
   late IconData icon;
 
+  String get userLabel {
+    switch (name) {
+      case 'Content Request':
+        return 'A video or hockey lesson';
+      case 'Feature Request':
+        return 'An app or website improvement';
+      case 'Bug':
+        return 'Something is broken';
+      default:
+        return 'Another suggestion';
+    }
+  }
+
+  String get helpText {
+    switch (name) {
+      case 'Content Request':
+        return 'A skill, drill, coaching topic, or video you want to see.';
+      case 'Feature Request':
+        return 'A new tool or a change to how a product works.';
+      case 'Bug':
+        return 'A button, page, video, or feature that does not work correctly.';
+      default:
+        return 'Anything that does not fit the choices above.';
+    }
+  }
+
   RequestType({required this.name}) {
     if (name == "Bug") {
-      this.color = Color.fromRGBO(204, 51, 51, 1);
-      this.descriptor = "Report a bug";
-      this.icon = Icons.bug_report;
+      color = const Color.fromRGBO(204, 51, 51, 1);
+      descriptor = "Something is broken";
+      icon = Icons.build_circle_outlined;
     } else if (name == "Idea") {
-      this.color = Colors.orange;
-      this.descriptor = "I have an idea";
-      this.icon = Icons.lightbulb;
+      color = Colors.orange;
+      descriptor = "Another suggestion";
+      icon = Icons.lightbulb;
     } else if (name == "Content Request") {
-      this.color = Colors.green;
-      this.descriptor = "I would like to learn about..";
-      this.icon = Icons.movie;
+      color = Colors.green;
+      descriptor = "Video or hockey lesson";
+      icon = Icons.movie;
     } else if (name == "Feature Request") {
-      this.color = Colors.blue;
-      this.descriptor = "I would like to be able to..";
-      this.icon = Icons.list_alt;
+      color = Colors.blue;
+      descriptor = "App or website improvement";
+      icon = Icons.devices;
     }
   }
 }

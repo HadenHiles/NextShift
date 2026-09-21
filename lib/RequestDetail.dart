@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:nextshift/CommentScreen.dart';
 import 'package:nextshift/widgets/PlatformBadge.dart';
+import 'package:nextshift/services/voting.dart';
 import 'Home.dart';
 import 'Login.dart';
 import 'Request.dart';
@@ -119,7 +120,7 @@ class _RequestDetailState extends State<RequestDetail> {
 
   Widget _buildDetails() {
     bool hasVoted = user != null ? item.voters.contains(user!.uid) : false;
-    String votesTitle = item.votes > 1 ? "Votes" : "Vote";
+    bool hasDownvoted = user != null ? item.downvoters.contains(user!.uid) : false;
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -140,7 +141,7 @@ class _RequestDetailState extends State<RequestDetail> {
                       if (!snapshot.hasData) return LinearProgressIndicator();
                       Item item = Item.fromSnapshot(snapshot.data!);
                       hasVoted = user != null ? item.voters.contains(user!.uid) : false;
-                      votesTitle = item.votes > 1 ? "Votes" : "Vote";
+                      hasDownvoted = user != null ? item.downvoters.contains(user!.uid) : false;
 
                       return Card(
                         margin: EdgeInsets.all(10),
@@ -163,59 +164,10 @@ class _RequestDetailState extends State<RequestDetail> {
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
                                     IconButton(
-                                      icon: Icon(
-                                        Icons.thumb_up,
-                                        color: hasVoted ? Theme.of(context).colorScheme.secondary : Colors.grey,
-                                      ),
-                                      onPressed: hasVoted
-                                          ? () async {
-                                              await FirebaseFirestore.instance.runTransaction(
-                                                (transaction) async {
-                                                  final freshSnapshot = await transaction.get(item.reference);
-                                                  final fresh = Item.fromSnapshot(freshSnapshot);
-
-                                                  if (fresh.voters.contains(user!.uid)) {
-                                                    fresh.voters.remove(user!.uid);
-                                                  }
-
-                                                  transaction.update(item.reference, {
-                                                    'votes': fresh.votes - 1,
-                                                    'voters': fresh.voters,
-                                                  });
-                                                },
-                                              );
-
-                                              setState(() {
-                                                hasVoted = false;
-                                              });
-                                            }
-                                          : () async {
-                                              if (user == null) {
-                                                Navigator.of(context).push(MaterialPageRoute(builder: (context) {
-                                                  return Login();
-                                                }));
-                                              } else {
-                                                await FirebaseFirestore.instance.runTransaction(
-                                                  (transaction) async {
-                                                    final freshSnapshot = await transaction.get(item.reference);
-                                                    final fresh = Item.fromSnapshot(freshSnapshot);
-
-                                                    if (!fresh.voters.contains(user!.uid)) {
-                                                      fresh.voters.add(user!.uid);
-                                                    }
-
-                                                    transaction.update(item.reference, {
-                                                      'votes': fresh.votes + 1,
-                                                      'voters': fresh.voters,
-                                                    });
-                                                  },
-                                                );
-
-                                                setState(() {
-                                                  hasVoted = true;
-                                                });
-                                              }
-                                            },
+                                      tooltip: hasVoted ? 'Remove upvote' : 'Upvote',
+                                      icon: const Icon(Icons.keyboard_arrow_up, size: 32),
+                                      color: hasVoted ? const Color(0xFF63D69A) : const Color(0xFFC7CED8),
+                                      onPressed: () => _vote(item, VoteDirection.up),
                                     ),
                                     Text(
                                       item.votes.toString(),
@@ -224,13 +176,19 @@ class _RequestDetailState extends State<RequestDetail> {
                                       ),
                                     ),
                                     Text(
-                                      votesTitle,
+                                      'SCORE',
                                       style: TextStyle(
-                                        color: Color(0xFF8A94A3),
+                                        color: Color(0xFFB4BDC9),
                                         fontWeight: FontWeight.w500,
-                                        fontSize: 12,
+                                        fontSize: 14,
                                       ),
-                                    )
+                                    ),
+                                    IconButton(
+                                      tooltip: hasDownvoted ? 'Remove downvote' : 'Downvote',
+                                      icon: const Icon(Icons.keyboard_arrow_down, size: 32),
+                                      color: hasDownvoted ? const Color(0xFFFF7373) : const Color(0xFFC7CED8),
+                                      onPressed: () => _vote(item, VoteDirection.down),
+                                    ),
                                   ],
                                 ),
                               ),
@@ -282,6 +240,14 @@ class _RequestDetailState extends State<RequestDetail> {
       requestId: item.reference.id,
       requestOwner: item.createdBy,
     );
+  }
+
+  Future<void> _vote(Item item, VoteDirection direction) async {
+    if (user == null) {
+      await Navigator.of(context).push(MaterialPageRoute(builder: (_) => const Login()));
+      return;
+    }
+    await setVote(item.reference, user!.uid, direction);
   }
 
   Future<void> _confirmDialog(String title, String message, Function cancel, Function proceed) async {

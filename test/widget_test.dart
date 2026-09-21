@@ -11,6 +11,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:nextshift/widgets/Heading.dart';
 import 'package:nextshift/widgets/PlatformBadge.dart';
 import 'package:nextshift/services/comment_policy.dart';
+import 'package:nextshift/services/voting.dart';
 
 void main() {
   testWidgets('Heading renders uppercase text at the requested size', (tester) async {
@@ -49,5 +50,41 @@ void main() {
 
   test('comment policy blocks harmful content', () {
     expect(validateComment('kill yourself'), contains('community guidelines'));
+  });
+
+  test('vote calculation adds and removes a downvote', () {
+    final added = calculateVote(
+      score: 3,
+      upvoters: const [],
+      downvoters: const [],
+      userId: 'player',
+      direction: VoteDirection.down,
+    );
+    expect(added.score, 2);
+    expect(added.downvoters, ['player']);
+
+    final removed = calculateVote(
+      score: added.score,
+      upvoters: added.upvoters,
+      downvoters: added.downvoters,
+      userId: 'player',
+      direction: VoteDirection.down,
+    );
+    expect(removed.score, 3);
+    expect(removed.downvoters, isEmpty);
+  });
+
+  test('switching vote direction changes the score by two', () {
+    final update = calculateVote(
+      score: 3,
+      upvoters: const ['player'],
+      downvoters: const [],
+      userId: 'player',
+      direction: VoteDirection.down,
+    );
+
+    expect(update.score, 1);
+    expect(update.upvoters, isEmpty);
+    expect(update.downvoters, ['player']);
   });
 }

@@ -37,7 +37,6 @@ class NextShift extends StatelessWidget {
       theme: ThemeData(
         brightness: Brightness.dark,
         scaffoldBackgroundColor: const Color(0xFF0B0D10),
-        fontFamily: 'Teko',
         colorScheme: ColorScheme.fromSeed(
           brightness: Brightness.dark,
           seedColor: brandRed,
@@ -54,13 +53,19 @@ class NextShift extends StatelessWidget {
           surfaceTintColor: Colors.transparent,
         ),
         textTheme: const TextTheme(
-          headlineLarge: TextStyle(fontSize: 48, fontWeight: FontWeight.w600, height: 0.95),
-          headlineMedium: TextStyle(fontSize: 36, fontWeight: FontWeight.w600, height: 1),
-          titleLarge: TextStyle(fontSize: 24, fontWeight: FontWeight.w600),
-          titleMedium: TextStyle(fontSize: 19, fontWeight: FontWeight.w600),
-          bodyLarge: TextStyle(fontSize: 17, fontWeight: FontWeight.w300),
-          bodyMedium: TextStyle(fontSize: 15, fontWeight: FontWeight.w300),
-          labelLarge: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+          headlineLarge: TextStyle(
+            fontFamily: 'Teko',
+            fontSize: 48,
+            fontWeight: FontWeight.w600,
+            height: 0.95,
+            color: Colors.white,
+          ),
+          headlineMedium: TextStyle(fontFamily: 'Teko', fontSize: 36, fontWeight: FontWeight.w600, height: 1),
+          titleLarge: TextStyle(fontFamily: 'Teko', fontSize: 24, fontWeight: FontWeight.w600),
+          titleMedium: TextStyle(fontFamily: 'Teko', fontSize: 19, fontWeight: FontWeight.w600),
+          bodyLarge: TextStyle(fontSize: 18, fontWeight: FontWeight.w400, color: Color(0xFFE5E9EF)),
+          bodyMedium: TextStyle(fontSize: 16, fontWeight: FontWeight.w400, color: Color(0xFFD8DEE7)),
+          labelLarge: TextStyle(fontFamily: 'Teko', fontSize: 16, fontWeight: FontWeight.w600),
         ),
         floatingActionButtonTheme: const FloatingActionButtonThemeData(
           backgroundColor: brandRed,

@@ -5,6 +5,7 @@ class Item {
   final String name;
   final int votes;
   final List<dynamic> voters;
+  final List<dynamic> downvoters;
   final String description;
   final String platform;
   final RequestType type;
@@ -25,6 +26,7 @@ class Item {
         name = map['name'],
         votes = map['votes'],
         voters = map['voters'],
+        downvoters = map['downvoters'] ?? <dynamic>[],
         description = map['description'],
         platform = map['platform'],
         type = RequestType(name: map['type']),

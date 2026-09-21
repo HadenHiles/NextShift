@@ -7,9 +7,10 @@ import 'models/Item.dart';
 import 'models/RequestType.dart';
 
 class Request extends StatefulWidget {
-  const Request({super.key, required this.type, this.editItem});
+  const Request({super.key, required this.type, this.initialPlatform, this.editItem});
 
   final RequestType type;
+  final String? initialPlatform;
   final Item? editItem;
 
   @override
@@ -52,7 +53,7 @@ class _RequestState extends State<Request> {
   void initState() {
     super.initState();
     requestType = widget.editItem?.type ?? widget.type;
-    platform = widget.editItem?.platform ?? "The Pond";
+    platform = widget.editItem?.platform ?? widget.initialPlatform ?? "The Pond";
 
     if (widget.editItem != null) {
       nameFieldController.text = widget.editItem!.name;
@@ -74,119 +75,99 @@ class _RequestState extends State<Request> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("${requestType.descriptor}"),
-        backgroundColor: requestType.color,
-        actions: [
-          PopupMenuButton(
-            elevation: 3.2,
-            initialValue: requestType,
-            tooltip: 'Change the type',
-            child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 10, vertical: 2),
-              child: Icon(requestType.icon),
-            ),
-            onSelected: (type) {
-              setState(() {
-                requestType = type;
-              });
-            },
-            itemBuilder: (BuildContext context) {
-              return types.map((RequestType choice) {
-                return PopupMenuItem(
-                  value: choice,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(choice.descriptor),
-                      Icon(
-                        choice.icon,
-                        color: choice.color,
-                      ),
-                    ],
-                  ),
-                );
-              }).toList();
-            },
-          )
-        ],
+        title: Text(widget.editItem == null ? 'SUBMIT A NEXT SHIFT' : 'EDIT NEXT SHIFT'),
       ),
-      body: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            width: MediaQuery.of(context).size.width,
-            constraints: BoxConstraints(maxWidth: 700),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.end,
-              mainAxisSize: MainAxisSize.max,
-              children: [
-                Container(
-                  padding: EdgeInsets.all(20),
-                  child: Column(
-                    children: [
-                      Form(
-                        key: _formKey,
-                        autovalidateMode: AutovalidateMode.onUserInteraction,
-                        child: Column(
-                          children: [
-                            TextFormField(
-                              validator: (String? value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Please enter a title';
-                                }
-                                return null;
-                              },
-                              controller: nameFieldController,
-                              decoration: InputDecoration(labelText: "Title"),
-                            ),
-                            Padding(
-                              padding: EdgeInsets.only(top: 25),
-                              child: DropdownButtonFormField<String>(
-                                initialValue: platform,
-                                decoration: InputDecoration(labelText: 'Platform'),
-                                items: platforms
-                                    .map((entry) => DropdownMenuItem<String>(
-                                          value: entry['value'] as String,
-                                          child: Text(entry['display'] as String),
-                                        ))
-                                    .toList(),
-                                onSaved: (value) {
-                                  if (value != null) platform = value;
-                                },
-                                onChanged: (value) {
-                                  if (value != null) setState(() => platform = value);
-                                },
-                              ),
-                            ),
-                            Padding(
-                              padding: EdgeInsets.only(top: 25),
-                              child: TextFormField(
-                                validator: (String? value) {
-                                  if (value == null || value.isEmpty) {
-                                    return 'Please enter a description';
-                                  }
-                                  return null;
-                                },
-                                controller: descriptionFieldController,
-                                minLines: 3,
-                                maxLines: 20,
-                                decoration: InputDecoration(labelText: "Description"),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
+      body: SingleChildScrollView(
+        child: Center(
+          child: Container(
+            width: double.infinity,
+            constraints: const BoxConstraints(maxWidth: 700),
+            padding: const EdgeInsets.all(24),
+            child: Form(
+              key: _formKey,
+              autovalidateMode: AutovalidateMode.onUserInteraction,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text('1  CHOOSE THE PRODUCT', style: Theme.of(context).textTheme.titleLarge),
+                  const SizedBox(height: 6),
+                  const Text('Which How To Hockey product is this for?'),
+                  const SizedBox(height: 14),
+                  DropdownButtonFormField<String>(
+                    initialValue: platform,
+                    decoration: const InputDecoration(labelText: 'Product'),
+                    items: platforms
+                        .map((entry) => DropdownMenuItem<String>(
+                              value: entry['value'] as String,
+                              child: Text(entry['display'] as String),
+                            ))
+                        .toList(),
+                    onChanged: (value) {
+                      if (value != null) setState(() => platform = value);
+                    },
                   ),
-                ),
-              ],
+                  const SizedBox(height: 30),
+                  Text('2  TELL US WHAT YOU NEED', style: Theme.of(context).textTheme.titleLarge),
+                  const SizedBox(height: 6),
+                  const Text('Choose the description that fits best. You can change it later.'),
+                  const SizedBox(height: 14),
+                  ...types.map(
+                    (type) => RadioListTile<String>(
+                      value: type.name,
+                      groupValue: requestType.name,
+                      onChanged: (value) => setState(() => requestType = RequestType(name: value!)),
+                      title: Text(type.userLabel),
+                      subtitle: Text(type.helpText),
+                      secondary: Icon(type.icon, color: type.color),
+                      contentPadding: EdgeInsets.zero,
+                    ),
+                  ),
+                  const SizedBox(height: 30),
+                  Text('3  DESCRIBE YOUR NEXT SHIFT', style: Theme.of(context).textTheme.titleLarge),
+                  const SizedBox(height: 14),
+                  TextFormField(
+                    validator: (String? value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter a title';
+                      }
+                      return null;
+                    },
+                    controller: nameFieldController,
+                    decoration: const InputDecoration(
+                      labelText: 'Short title',
+                      hintText: 'Example: Video on stopping with both feet',
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 18),
+                    child: TextFormField(
+                      validator: (String? value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter a description';
+                        }
+                        return null;
+                      },
+                      controller: descriptionFieldController,
+                      minLines: 3,
+                      maxLines: 20,
+                      decoration: const InputDecoration(
+                        labelText: 'More details',
+                        hintText: 'What would help, and why?',
+                        alignLabelWithHint: true,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 90),
+                ],
+              ),
             ),
           ),
-        ],
+        ),
       ),
-      floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.check),
+      floatingActionButton: FloatingActionButton.extended(
+        tooltip: widget.editItem == null ? 'Submit next shift' : 'Save changes',
+        icon: const Icon(Icons.check),
+        label: Text(widget.editItem == null ? 'SUBMIT NEXT SHIFT' : 'SAVE CHANGES'),
         backgroundColor: Theme.of(context).colorScheme.secondary,
         onPressed: widget.editItem == null
             ? () {
@@ -196,6 +177,7 @@ class _RequestState extends State<Request> {
                     'name': nameFieldController.text.trim(),
                     'votes': 1,
                     'voters': [currentUser.uid],
+                    'downvoters': [],
                     'description': descriptionFieldController.text.trim(),
                     'platform': platform,
                     'type': requestType.name,

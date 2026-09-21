@@ -1,10 +1,10 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:nextshift/RequestDetail.dart';
 import 'package:nextshift/globals/Roles.dart';
 import 'package:nextshift/models/Item.dart';
 import 'package:nextshift/models/RequestType.dart';
+import 'package:nextshift/services/voting.dart';
 import 'package:nextshift/widgets/PlatformBadge.dart';
 import '../Login.dart';
 
@@ -26,6 +26,7 @@ class _ListItemState extends State<ListItem> {
   @override
   Widget build(BuildContext context) {
     final hasVoted = user != null ? widget.item.voters.contains(user!.uid) : false;
+    final hasDownvoted = user != null ? widget.item.downvoters.contains(user!.uid) : false;
     final status = widget.item.complete
         ? ('Completed', const Color(0xFF45B978), Icons.check_circle)
         : widget.item.upNext
@@ -89,11 +90,14 @@ class _ListItemState extends State<ListItem> {
                         crossAxisAlignment: WrapCrossAlignment.center,
                         children: [
                           _StatusBadge(label: status.$1, color: status.$2, icon: status.$3),
-                          ActionChip(
-                            avatar: Icon(widget.item.type.icon, size: 17, color: widget.item.type.color),
-                            label: Text(widget.item.type.name),
-                            onPressed: () => widget.filterBy(widget.item.type, null),
-                          ),
+                          if (isAdmin)
+                            ActionChip(
+                              avatar: Icon(widget.item.type.icon, size: 18, color: widget.item.type.color),
+                              label: Text(widget.item.type.descriptor),
+                              onPressed: () => widget.filterBy(widget.item.type, null),
+                            )
+                          else
+                            _TypeLabel(type: widget.item.type),
                           PlatformBadge(
                             platform: widget.item.platform,
                             onTap: () => widget.filterBy(null, widget.item.platform),
@@ -105,18 +109,24 @@ class _ListItemState extends State<ListItem> {
                 ),
               ),
               SizedBox(
-                width: 78,
+                width: 84,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    IconButton.filledTonal(
-                      tooltip: hasVoted ? 'Remove vote' : 'Vote for this',
-                      onPressed: _toggleVote,
-                      icon: Icon(hasVoted ? Icons.arrow_upward : Icons.arrow_upward_outlined),
+                    IconButton(
+                      tooltip: hasVoted ? 'Remove upvote' : 'Upvote this next shift',
+                      color: hasVoted ? const Color(0xFF63D69A) : const Color(0xFFC7CED8),
+                      onPressed: () => _vote(VoteDirection.up),
+                      icon: const Icon(Icons.keyboard_arrow_up, size: 30),
                     ),
-                    const SizedBox(height: 2),
                     Text('${widget.item.votes}', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600)),
-                    const Text('VOTES', style: TextStyle(fontSize: 10, color: Color(0xFF8A94A3), fontWeight: FontWeight.w600)),
+                    const Text('SCORE', style: TextStyle(fontSize: 12, color: Color(0xFFB4BDC9), fontWeight: FontWeight.w600)),
+                    IconButton(
+                      tooltip: hasDownvoted ? 'Remove downvote' : 'Downvote this next shift',
+                      color: hasDownvoted ? const Color(0xFFFF7373) : const Color(0xFFC7CED8),
+                      onPressed: () => _vote(VoteDirection.down),
+                      icon: const Icon(Icons.keyboard_arrow_down, size: 30),
+                    ),
                   ],
                 ),
               ),
@@ -133,25 +143,14 @@ class _ListItemState extends State<ListItem> {
     );
   }
 
-  Future<void> _toggleVote() async {
+  Future<void> _vote(VoteDirection direction) async {
     final currentUser = user;
     if (currentUser == null) {
       await Navigator.of(context).push(MaterialPageRoute(builder: (_) => const Login()));
       return;
     }
 
-    await FirebaseFirestore.instance.runTransaction((transaction) async {
-      final snapshot = await transaction.get(widget.item.reference);
-      final fresh = Item.fromSnapshot(snapshot);
-      final voters = List<dynamic>.from(fresh.voters);
-      final hasVoted = voters.remove(currentUser.uid);
-      if (!hasVoted) voters.add(currentUser.uid);
-
-      transaction.update(widget.item.reference, {
-        'votes': fresh.votes + (hasVoted ? -1 : 1),
-        'voters': voters,
-      });
-    });
+    await setVote(widget.item.reference, currentUser.uid, direction);
   }
 
   Future<void> _toggleComplete() => _updateFlag('complete', !widget.item.complete);
@@ -160,6 +159,24 @@ class _ListItemState extends State<ListItem> {
 
   Future<void> _updateFlag(String field, bool value) {
     return widget.item.reference.update({field: value});
+  }
+}
+
+class _TypeLabel extends StatelessWidget {
+  const _TypeLabel({required this.type});
+
+  final RequestType type;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(type.icon, size: 18, color: type.color),
+        const SizedBox(width: 6),
+        Text(type.descriptor, style: const TextStyle(fontSize: 14)),
+      ],
+    );
   }
 }
 
@@ -185,7 +202,7 @@ class _StatusBadge extends StatelessWidget {
         children: [
           Icon(icon, size: 14, color: color),
           const SizedBox(width: 6),
-          Text(label, style: TextStyle(color: color, fontSize: 12, fontWeight: FontWeight.w600)),
+          Text(label, style: TextStyle(color: color, fontSize: 14, fontWeight: FontWeight.w600)),
         ],
       ),
     );

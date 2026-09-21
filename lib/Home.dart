@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:nextshift/Request.dart';
+import 'package:nextshift/globals/Roles.dart';
 import 'package:nextshift/models/RequestType.dart';
 import 'models/Item.dart';
 import 'widgets/ListItem.dart';
@@ -16,6 +17,7 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   final user = FirebaseAuth.instance.currentUser;
+  bool get isAdmin => Roles.admins.contains(user?.uid);
 
   RequestType? typeFilter;
   String? platformFilter;
@@ -116,7 +118,7 @@ class _HomeState extends State<Home> {
                       const SizedBox(width: 10),
                       const Text(
                         'YOU MAKE THE CALL',
-                        style: TextStyle(color: Color(0xFFE55353), fontSize: 14, fontWeight: FontWeight.w600),
+                        style: TextStyle(color: Color(0xFFFF7373), fontSize: 15, fontWeight: FontWeight.w600),
                       ),
                     ],
                   ),
@@ -166,9 +168,9 @@ class _HomeState extends State<Home> {
             final heading = Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('THE LINEUP', style: TextStyle(color: Color(0xFFCC3333), fontSize: 13, fontWeight: FontWeight.w600)),
+                const Text('CHOOSE A PRODUCT', style: TextStyle(color: Color(0xFFFF7373), fontSize: 14, fontWeight: FontWeight.w600)),
                 Text(
-                  showCompleted ? 'Completed shifts' : 'Ranked by the community',
+                  showCompleted ? 'Completed next shifts' : 'Community scoreboard',
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
               ],
@@ -222,7 +224,7 @@ class _HomeState extends State<Home> {
             ),
           ],
         ),
-        if (typeFilter != null) ...[
+        if (isAdmin && typeFilter != null) ...[
           const SizedBox(height: 10),
           InputChip(
             avatar: Icon(typeFilter!.icon, size: 18),
@@ -317,12 +319,13 @@ class _HomeState extends State<Home> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text('What should the next shift be?', style: Theme.of(context).textTheme.titleLarge),
+              Text('Which product is this for?', style: Theme.of(context).textTheme.titleLarge),
+              const SizedBox(height: 4),
+              const Text('Choose the product first. We will ask what you need on the next screen.'),
               const SizedBox(height: 12),
-              _requestOption('Content Request', Icons.movie, 'Suggest a video, drill, or lesson'),
-              _requestOption('Feature Request', Icons.list_alt, 'Improve one of our products'),
-              _requestOption('Idea', Icons.lightbulb, 'Share another way we can help'),
-              _requestOption('Bug', Icons.bug_report, 'Report something that is broken'),
+              _requestOption('The Pond', Icons.water, 'Hockey community and membership'),
+              _requestOption('10,000 Shots App', Icons.track_changes, 'Shot tracking and training app'),
+              _requestOption('How To Hockey', Icons.sports_hockey, 'Videos, articles, drills, and coaching'),
             ],
           ),
         ),
@@ -343,7 +346,7 @@ class _HomeState extends State<Home> {
     );
   }
 
-  void newRequest(String type) {
+  void newRequest(String platform) {
     if (user == null) {
       Future.delayed(Duration.zero, () {
         Navigator.of(context).push(
@@ -355,30 +358,13 @@ class _HomeState extends State<Home> {
         );
       });
     } else {
-      RequestType requestType = RequestType(name: type);
-
-      if (type == "Bug") {
-        requestType.color = Theme.of(context).colorScheme.secondary;
-        requestType.descriptor = "Report a bug";
-        requestType.icon = Icons.bug_report;
-      } else if (type == "Idea") {
-        requestType.color = Colors.orange;
-        requestType.descriptor = "I have an idea";
-        requestType.icon = Icons.lightbulb;
-      } else if (type == "Content Request") {
-        requestType.color = Colors.green;
-        requestType.descriptor = "I would like to learn about..";
-        requestType.icon = Icons.movie;
-      } else if (type == "Feature Request") {
-        requestType.color = Colors.blue;
-        requestType.descriptor = "I would like to be able to..";
-        requestType.icon = Icons.list_alt;
-      }
-
       Navigator.of(context).push(
         MaterialPageRoute<void>(
           builder: (BuildContext context) {
-            return Request(type: requestType);
+            return Request(
+              type: RequestType(name: 'Content Request'),
+              initialPlatform: platform,
+            );
           },
         ),
       );
@@ -387,7 +373,7 @@ class _HomeState extends State<Home> {
 
   void filterBy(RequestType? type, String? platform) {
     setState(() {
-      if (type != null) typeFilter = type;
+      if (isAdmin && type != null) typeFilter = type;
       if (platform != null) platformFilter = platform;
     });
   }
