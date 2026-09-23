@@ -36,16 +36,16 @@ class _RequestState extends State<Request> {
 
   List<dynamic> platforms = [
     {
-      "display": "The Pond",
-      "value": "The Pond",
+      "display": "10,000 Shots App",
+      "value": "10,000 Shots App",
     },
     {
       "display": "How To Hockey",
       "value": "How To Hockey",
     },
     {
-      "display": "10,000 Shots App",
-      "value": "10,000 Shots App",
+      "display": "The Pond",
+      "value": "The Pond",
     },
   ];
 
@@ -53,7 +53,7 @@ class _RequestState extends State<Request> {
   void initState() {
     super.initState();
     requestType = widget.editItem?.type ?? widget.type;
-    platform = widget.editItem?.platform ?? widget.initialPlatform ?? "The Pond";
+    platform = widget.editItem?.platform ?? widget.initialPlatform ?? "10,000 Shots App";
 
     if (widget.editItem != null) {
       nameFieldController.text = widget.editItem!.name;

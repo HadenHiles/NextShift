@@ -155,7 +155,7 @@ class _HomeState extends State<Home> {
   }
 
   Widget _buildFilters() {
-    const platforms = ['The Pond', 'How To Hockey', '10,000 Shots App'];
+    const platforms = ['10,000 Shots App', 'How To Hockey', 'The Pond'];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -346,9 +346,9 @@ class _HomeState extends State<Home> {
               const SizedBox(height: 4),
               const Text('Choose the product first. We will ask what you need on the next screen.'),
               const SizedBox(height: 12),
-              _requestOption('The Pond', Icons.water, 'Hockey community and membership'),
               _requestOption('10,000 Shots App', Icons.track_changes, 'Shot tracking and training app'),
               _requestOption('How To Hockey', Icons.sports_hockey, 'Videos, articles, drills, and coaching'),
+              _requestOption('The Pond', Icons.water, 'Hockey community and membership'),
             ],
           ),
         ),

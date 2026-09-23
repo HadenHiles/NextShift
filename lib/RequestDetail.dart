@@ -107,14 +107,23 @@ class _RequestDetailState extends State<RequestDetail> {
           ),
         ],
       ),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisSize: MainAxisSize.max,
-        children: [
-          _buildDetails(),
-          _buildComments(),
-        ],
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final isCompact = constraints.maxWidth < 600;
+
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxHeight: constraints.maxHeight * (isCompact ? 0.58 : 0.5),
+                ),
+                child: SingleChildScrollView(child: _buildDetails()),
+              ),
+              _buildComments(),
+            ],
+          );
+        },
       ),
     );
   }
@@ -135,7 +144,10 @@ class _RequestDetailState extends State<RequestDetail> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Container(
-                padding: EdgeInsets.all(20),
+                padding: EdgeInsets.symmetric(
+                  horizontal: MediaQuery.sizeOf(context).width < 600 ? 12 : 20,
+                  vertical: 20,
+                ),
                 child: StreamBuilder<DocumentSnapshot>(
                     stream: FirebaseFirestore.instance.collection('items').doc(item.reference.id).snapshots(),
                     builder: (context, snapshot) {
@@ -145,85 +157,49 @@ class _RequestDetailState extends State<RequestDetail> {
                       hasDownvoted = user != null ? item.downvoters.contains(user!.uid) : false;
 
                       return Card(
-                        margin: EdgeInsets.all(10),
+                        margin: EdgeInsets.zero,
                         color: Theme.of(context).colorScheme.surface,
                         elevation: 0,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(6),
                           side: const BorderSide(color: Color(0xFF292E35)),
                         ),
-                        child: Container(
-                          padding: EdgeInsets.all(15),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              Container(
-                                margin: EdgeInsets.only(right: 20),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: LayoutBuilder(
+                            builder: (context, constraints) {
+                              final voteControls = _buildVoteControls(item, hasVoted, hasDownvoted);
+                              final requestCopy = _buildRequestCopy(item);
+
+                              if (constraints.maxWidth < 600) {
+                                return Column(
+                                  crossAxisAlignment: CrossAxisAlignment.stretch,
                                   children: [
-                                    VoteButton(
-                                      isUpvote: true,
-                                      selected: hasVoted,
-                                      tooltip: hasVoted ? 'Remove upvote' : 'Upvote',
-                                      onPressed: () => _vote(item, VoteDirection.up),
+                                    Align(
+                                      alignment: Alignment.centerLeft,
+                                      child: PlatformBadge(platform: item.platform),
                                     ),
-                                    Text(
-                                      item.votes.toString(),
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    Text(
-                                      'SCORE',
-                                      style: TextStyle(
-                                        color: Color(0xFFB4BDC9),
-                                        fontWeight: FontWeight.w500,
-                                        fontSize: 14,
-                                      ),
-                                    ),
-                                    VoteButton(
-                                      isUpvote: false,
-                                      selected: hasDownvoted,
-                                      tooltip: hasDownvoted ? 'Remove downvote' : 'Downvote',
-                                      onPressed: () => _vote(item, VoteDirection.down),
-                                    ),
+                                    const SizedBox(height: 16),
+                                    requestCopy,
+                                    const SizedBox(height: 16),
+                                    const Divider(height: 1),
+                                    const SizedBox(height: 8),
+                                    voteControls,
                                   ],
-                                ),
-                              ),
-                              Expanded(
-                                child: Container(
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Container(
-                                        margin: EdgeInsets.only(bottom: 25),
-                                        child: Text(
-                                          item.name,
-                                          textAlign: TextAlign.left,
-                                          style: TextStyle(
-                                            fontSize: 20,
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.w500,
-                                          ),
-                                        ),
-                                      ),
-                                      Text(
-                                        item.description,
-                                        textAlign: TextAlign.left,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                              Container(
-                                margin: EdgeInsets.only(left: 12),
-                                child: PlatformBadge(platform: item.platform),
-                              ),
-                            ],
+                                );
+                              }
+
+                              return Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  voteControls,
+                                  const SizedBox(width: 20),
+                                  Expanded(child: requestCopy),
+                                  const SizedBox(width: 12),
+                                  PlatformBadge(platform: item.platform),
+                                ],
+                              );
+                            },
                           ),
                         ),
                       );
@@ -232,6 +208,45 @@ class _RequestDetailState extends State<RequestDetail> {
             ],
           ),
         ),
+      ],
+    );
+  }
+
+  Widget _buildVoteControls(Item item, bool hasVoted, bool hasDownvoted) {
+    final isCompact = MediaQuery.sizeOf(context).width < 600;
+    final children = [
+      VoteButton(
+        isUpvote: true,
+        selected: hasVoted,
+        tooltip: hasVoted ? 'Remove upvote' : 'Upvote',
+        onPressed: () => _vote(item, VoteDirection.up),
+      ),
+      Text(item.votes.toString(), style: const TextStyle(fontWeight: FontWeight.bold)),
+      const Text(
+        'SCORE',
+        style: TextStyle(color: Color(0xFFB4BDC9), fontWeight: FontWeight.w500, fontSize: 14),
+      ),
+      VoteButton(
+        isUpvote: false,
+        selected: hasDownvoted,
+        tooltip: hasDownvoted ? 'Remove downvote' : 'Downvote',
+        onPressed: () => _vote(item, VoteDirection.down),
+      ),
+    ];
+
+    return isCompact ? Row(mainAxisAlignment: MainAxisAlignment.center, children: children) : Column(mainAxisAlignment: MainAxisAlignment.center, children: children);
+  }
+
+  Widget _buildRequestCopy(Item item) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          item.name,
+          style: const TextStyle(fontSize: 20, color: Colors.white, fontWeight: FontWeight.w500, height: 1.2),
+        ),
+        const SizedBox(height: 16),
+        SelectableText(item.description, textAlign: TextAlign.left),
       ],
     );
   }
