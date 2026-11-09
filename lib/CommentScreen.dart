@@ -1,9 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:nextshift/globals/Roles.dart';
 import 'package:nextshift/services/comment_policy.dart';
 import 'package:timeago/timeago.dart' as timeago;
+import 'package:url_launcher/url_launcher.dart';
 import 'models/Comment.dart';
 
 final bool admin = Roles.admins.contains(FirebaseAuth.instance.currentUser?.uid);
@@ -269,7 +271,7 @@ class CommentItem extends StatelessWidget {
     return Column(
       children: <Widget>[
         ListTile(
-          title: Text(comment.comment),
+          title: Roles.admins.contains(comment.userId) ? _LinkedText(comment.comment) : Text(comment.comment),
           leading: CircleAvatar(
             backgroundImage: comment.avatarUrl == null ? null : NetworkImage(comment.avatarUrl!),
           ),
@@ -301,5 +303,59 @@ class CommentItem extends StatelessWidget {
         Divider(),
       ],
     );
+  }
+}
+
+class _LinkedText extends StatefulWidget {
+  const _LinkedText(this.text);
+
+  final String text;
+
+  @override
+  State<_LinkedText> createState() => _LinkedTextState();
+}
+
+class _LinkedTextState extends State<_LinkedText> {
+  static final RegExp _url = RegExp(r'[a-zA-Z][a-zA-Z0-9+.-]*://[^\s]+');
+  final List<TapGestureRecognizer> _recognizers = [];
+
+  @override
+  void dispose() {
+    for (final r in _recognizers) {
+      r.dispose();
+    }
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    for (final r in _recognizers) {
+      r.dispose();
+    }
+    _recognizers.clear();
+
+    final spans = <InlineSpan>[];
+    var last = 0;
+    for (final match in _url.allMatches(widget.text)) {
+      if (match.start > last) spans.add(TextSpan(text: widget.text.substring(last, match.start)));
+      final url = match.group(0)!;
+      final uri = Uri.tryParse(url);
+      final recognizer = TapGestureRecognizer()
+        ..onTap = () {
+          if (uri != null && (uri.scheme == 'http' || uri.scheme == 'https')) {
+            launchUrl(uri, mode: LaunchMode.externalApplication);
+          }
+        };
+      _recognizers.add(recognizer);
+      spans.add(TextSpan(
+        text: url,
+        style: const TextStyle(color: Color(0xFF6CB4FF), decoration: TextDecoration.underline),
+        recognizer: recognizer,
+      ));
+      last = match.end;
+    }
+    if (last < widget.text.length) spans.add(TextSpan(text: widget.text.substring(last)));
+
+    return Text.rich(TextSpan(children: spans));
   }
 }

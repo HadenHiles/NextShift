@@ -26,6 +26,7 @@ dependencies:
   timeago: ^3.7.1
 
   mofilo_content_filter: ^1.0.9
+  url_launcher: ^6.3.3
 
 dev_dependencies:
   flutter_test:
