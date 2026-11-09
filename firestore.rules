@@ -7,7 +7,12 @@ service cloud.firestore {
 
     function isAdmin() {
       return signedIn() &&
-        exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+        (request.auth.uid in [
+          'Jm3Beh4TYVPTm9Xj5guA67dDAvV2',
+          'Wip97tDGgrSyYO7Fr51hKY2D2R72',
+          'EWGdx4laKPNZxkq8qcMm6zZAD7u1'
+        ] ||
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid)));
     }
 
     function validCommentText(text) {
