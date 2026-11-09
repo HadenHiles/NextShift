@@ -77,7 +77,7 @@ class _CommentScreenState extends State<CommentScreen> {
                                     enabled: !_isSaving,
                                     decoration: InputDecoration(
                                       labelText: 'Update comment...',
-                                      helperText: 'Plain text only. Links and embeds are not allowed.',
+                                      helperText: 'Plain text only. Protocol links and embeds are not allowed.',
                                     ),
                                     validator: validateComment,
                                   ),
@@ -120,7 +120,7 @@ class _CommentScreenState extends State<CommentScreen> {
                                     enabled: !_isSaving,
                                     decoration: InputDecoration(
                                       labelText: 'Write a comment...',
-                                      helperText: 'Plain text only. Links and embeds are not allowed.',
+                                      helperText: 'Plain text only. Protocol links and embeds are not allowed.',
                                     ),
                                     onFieldSubmitted: addComment,
                                     validator: validateComment,

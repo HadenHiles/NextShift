@@ -2,10 +2,7 @@ import 'package:mofilo_content_filter/mofilo_content_filter.dart';
 
 const int maxCommentLength = 500;
 
-final RegExp _linkPattern = RegExp(
-  r'(https?://|www\.|mailto:|data:image|(?:[a-z0-9-]+\.)+(?:com|net|org|io|co|app|dev|gg|me|tv|ly|ca|uk|us)\b)',
-  caseSensitive: false,
-);
+final RegExp _linkPattern = RegExp(r'\b[a-z][a-z0-9+.-]*://', caseSensitive: false);
 final RegExp _markupPattern = RegExp(r'<[^>]*>|!?\[[^\]]*\]\s*\([^)]*\)');
 final RegExp _unsafeControlCharacters = RegExp(r'[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]');
 

@@ -90,8 +90,16 @@ void main() {
     expect(validateComment('Please add a video about backward crossovers.'), isNull);
   });
 
+  test('comment policy allows email addresses and bare domains', () {
+    expect(validateComment('Contact coach@example.com for details.'), isNull);
+    expect(validateComment('Visit www.example.com for details.'), isNull);
+    expect(validateComment('Visit example.com for details.'), isNull);
+  });
+
   test('comment policy blocks links and embedded content', () {
     expect(validateComment('Visit https://example.com'), contains('Links'));
+    expect(validateComment('Visit ftp://example.com'), contains('Links'));
+    expect(validateComment('Visit custom+scheme://example.com'), contains('Links'));
     expect(validateComment('<img src="bad">'), contains('HTML'));
     expect(validateComment('![photo](image.png)'), contains('HTML'));
   });
