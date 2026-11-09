@@ -14,9 +14,7 @@ service cloud.firestore {
       return text is string &&
         text.size() > 0 &&
         text.size() <= 500 &&
-        !text.matches('(?s).*[hH][tT][tT][pP][sS]?://.*') &&
-        !text.matches('(?s).*[wW][wW][wW][.].*') &&
-        !text.matches('(?s).*[.](com|net|org|io|co|app|dev|gg|me|tv|ly|ca|uk|us)(/|\\s|$).*') &&
+        !text.matches('(?s).*[a-zA-Z][a-zA-Z0-9+.-]*://.*') &&
         !text.matches('(?s).*[<>].*') &&
         !text.matches('(?s).*data:[iI][mM][aA][gG][eE].*');
     }
