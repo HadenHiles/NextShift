@@ -100,6 +100,7 @@ void main() {
     expect(validateComment('Visit https://example.com'), contains('Links'));
     expect(validateComment('Visit ftp://example.com'), contains('Links'));
     expect(validateComment('Visit custom+scheme://example.com'), contains('Links'));
+    expect(validateComment('Visit https://example.com', allowLinks: true), isNull);
     expect(validateComment('<img src="bad">'), contains('HTML'));
     expect(validateComment('![photo](image.png)'), contains('HTML'));
   });

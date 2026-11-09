@@ -6,13 +6,13 @@ final RegExp _linkPattern = RegExp(r'\b[a-z][a-z0-9+.-]*://', caseSensitive: fal
 final RegExp _markupPattern = RegExp(r'<[^>]*>|!?\[[^\]]*\]\s*\([^)]*\)');
 final RegExp _unsafeControlCharacters = RegExp(r'[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]');
 
-String? validateComment(String? value) {
+String? validateComment(String? value, {bool allowLinks = false}) {
   final comment = value?.trim() ?? '';
   if (comment.isEmpty) return 'Please write a comment';
   if (comment.length > maxCommentLength) {
     return 'Keep comments under $maxCommentLength characters';
   }
-  if (_linkPattern.hasMatch(comment)) {
+  if (!allowLinks && _linkPattern.hasMatch(comment)) {
     return 'Links are not allowed in comments';
   }
   if (_markupPattern.hasMatch(comment)) {

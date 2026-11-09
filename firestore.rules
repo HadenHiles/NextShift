@@ -14,7 +14,7 @@ service cloud.firestore {
       return text is string &&
         text.size() > 0 &&
         text.size() <= 500 &&
-        !text.matches('(?s).*[a-zA-Z][a-zA-Z0-9+.-]*://.*') &&
+        (isAdmin() || !text.matches('(?s).*[a-zA-Z][a-zA-Z0-9+.-]*://.*')) &&
         !text.matches('(?s).*[<>].*') &&
         !text.matches('(?s).*data:[iI][mM][aA][gG][eE].*');
     }

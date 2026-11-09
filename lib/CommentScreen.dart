@@ -28,6 +28,7 @@ class _CommentScreenState extends State<CommentScreen> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _commentController = TextEditingController();
   bool _isSaving = false;
+  bool get _isAdmin => Roles.admins.contains(currentUser?.uid);
 
   @override
   void dispose() {
@@ -77,9 +78,9 @@ class _CommentScreenState extends State<CommentScreen> {
                                     enabled: !_isSaving,
                                     decoration: InputDecoration(
                                       labelText: 'Update comment...',
-                                      helperText: 'Plain text only. Protocol links and embeds are not allowed.',
+                                      helperText: _isAdmin ? 'Plain text only.' : 'Plain text only. Protocol links and embeds are not allowed.',
                                     ),
-                                    validator: validateComment,
+                                    validator: (value) => validateComment(value, allowLinks: _isAdmin),
                                   ),
                                   trailing: Row(
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -120,10 +121,10 @@ class _CommentScreenState extends State<CommentScreen> {
                                     enabled: !_isSaving,
                                     decoration: InputDecoration(
                                       labelText: 'Write a comment...',
-                                      helperText: 'Plain text only. Protocol links and embeds are not allowed.',
+                                      helperText: _isAdmin ? 'Plain text only.' : 'Plain text only. Protocol links and embeds are not allowed.',
                                     ),
                                     onFieldSubmitted: addComment,
-                                    validator: validateComment,
+                                    validator: (value) => validateComment(value, allowLinks: _isAdmin),
                                   ),
                                   trailing: IconButton(
                                     onPressed: _isSaving ? null : () => addComment(_commentController.text),
