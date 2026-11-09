@@ -78,7 +78,7 @@ class _CommentScreenState extends State<CommentScreen> {
                                     enabled: !_isSaving,
                                     decoration: InputDecoration(
                                       labelText: 'Update comment...',
-                                      helperText: _isAdmin ? 'Plain text only.' : 'Plain text only. Protocol links and embeds are not allowed.',
+                                      helperText: _isAdmin ? 'Plain text only. Links are allowed for admins.' : 'Plain text only. Protocol links and embeds are not allowed.',
                                     ),
                                     validator: (value) => validateComment(value, allowLinks: _isAdmin),
                                   ),
@@ -121,7 +121,7 @@ class _CommentScreenState extends State<CommentScreen> {
                                     enabled: !_isSaving,
                                     decoration: InputDecoration(
                                       labelText: 'Write a comment...',
-                                      helperText: _isAdmin ? 'Plain text only.' : 'Plain text only. Protocol links and embeds are not allowed.',
+                                      helperText: _isAdmin ? 'Plain text only. Links are allowed for admins.' : 'Plain text only. Protocol links and embeds are not allowed.',
                                     ),
                                     onFieldSubmitted: addComment,
                                     validator: (value) => validateComment(value, allowLinks: _isAdmin),
